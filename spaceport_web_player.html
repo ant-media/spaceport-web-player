@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <!-- <script src="https://cdn.rawgit.com/mrdoob/three.js/dev/build/three.min.js"></script>
+    <script src="DRACOLoader.js"></script> -->
+
+    <script type="module">
+
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
+import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+        
+      // Configure decoder and create loader.
+      var textureLoader = new THREE.TextureLoader();
+      const loadManager = new THREE.LoadingManager();
+      
+          
+      const meshes = [];
+      const allTextures  = [];
+      const allMaterials = [];
+      const drcMeshes = [];
+    
+  
+      var camera, cameraTarget, scene, renderer, controls;
+
+
+      function init() {
+        console.log("init");
+        var container = document.createElement('div');
+        document.body.appendChild(container);
+
+        camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 15);
+        camera.position.set(3, 0.15, 3);
+        cameraTarget = new THREE.Vector3(0, 0, 0);
+        
+
+        //scene
+        scene = new THREE.Scene();
+       //scene.background = new THREE.Color( 0xcccccc );
+        scene.fog = new THREE.Fog(0x72645b, 2, 15);
+
+
+        // Ground
+        var plane = new THREE.Mesh(
+            new THREE.PlaneBufferGeometry(40, 40),
+            new THREE.MeshPhongMaterial({color: 0x999999, specular: 0x101010}));
+        plane.rotation.x = -Math.PI/2;
+        plane.position.y = -0.5;
+        scene.add(plane);
+        plane.receiveShadow = true;
+
+        // Lights
+        scene.add(new THREE.HemisphereLight(0x443333, 0x111122));
+        addShadowedLight(1, 1, 1, 0xffffff, 1.35);
+        addShadowedLight(0.5, 1, -1, 0xffaa00, 1);
+
+        // renderer
+       
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setClearColor(scene.fog.color);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+        window.addEventListener('resize', onWindowResize, false);
+        
+        // controls
+        controls = new OrbitControls( camera, renderer.domElement );
+       // controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+        controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+        controls.dampingFactor = 0.05;
+        controls.screenSpacePanning = false;
+        controls.minDistance = 2;
+        controls.maxDistance = 7;
+        controls.maxPolarAngle = Math.PI/2;
+
+      }
+
+      function addShadowedLight(x, y, z, color, intensity) {
+        var directionalLight = new THREE.DirectionalLight(color, intensity);
+        directionalLight.position.set(x, y, z);
+        scene.add(directionalLight);
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      let currentIndex = null;
+      function animate() {
+          console.log("animate");
+           // only required if controls.enableDamping = true, or if controls.autoRotate = true
+
+    //     const index = Math.floor(t/500) % meshes.length;
+    //    if (currentIndex !== index) {
+    //     scene.remove(meshes[currentIndex]);
+    //      scene.add(meshes[index])
+    //       currentIndex = index;
+    // }
+          
+       
+        requestAnimationFrame( function render(t) {
+         // console.log("render");
+
+          const index = Math.floor(t/80) % meshes.length;
+    if (currentIndex !== index) {
+      scene.remove(meshes[currentIndex]);
+      scene.add(meshes[index])
+      currentIndex = index;
+    }
+      
+       // var timer = Date.now() * 0.0005;
+        var timer = 5;
+        controls.update();
+       // camera.position.x = Math.sin(timer) * 2.5;
+       // camera.position.z = Math.cos(timer) * 2.5;
+        camera.lookAt(cameraTarget);
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+      });
+
+      }
+
+      window.onload = function() {
+        console.log("start");
+        fetch('http://192.168.56.1:8080/all')
+        .then(response => response.blob())
+        .then(data =>  {
+             console.log(data);
+             var file = data;
+             var reader = new FileReader();
+             console.log("reader hazir");
+             reader.onload = function(e) {
+            console.log("reader.onload 1 ");
+          //  console.log(reader.result);
+            //burada reader resultu temizleyip decode etmek için sadece gerekli byte aşağıye vermem lazım 
+            //var rawData = reader.result;
+          //  console.log(rawData);
+            // create buffer and array
+            var offset = 40;
+            var frameCount = reader.result.slice(offset,offset+8);
+            var byteArray = new BigUint64Array(frameCount);
+            var frameNumber = Number(byteArray[0]);
+         //   console.log(byteArray[0]);
+            offset=offset+8;
+
+            var i;
+            for (i = 0; i <frameNumber ; i++) {
+              var timeStamp = reader.result.slice(offset,offset+8);
+              var byteArray = new BigUint64Array(timeStamp);
+             // console.log(byteArray[0]);
+              offset=offset+8;
+              
+              var framePosition = reader.result.slice(offset,offset+8);
+              var byteArray = new BigUint64Array(framePosition);
+             // console.log(byteArray[0]);
+              offset=offset+8; 
+            }
+
+               var i;
+            for (i = 0; i <frameNumber ; i++) {
+
+              var dracoSize = reader.result.slice(offset,offset+8);
+              var byteArray = new BigUint64Array(dracoSize);
+             // console.log(byteArray[0]);
+              var myNumber = Number(byteArray[0]);
+              offset=offset+8;
+
+              var drcMesh = reader.result.slice(offset,offset+myNumber);
+              drcMeshes.push(drcMesh);
+              offset=offset+myNumber;
+             // console.log(drcMesh);
+             // console.log("offset"+ offset);
+
+              var mtl = reader.result.slice(offset,offset+8);
+              offset=offset+8;
+              var byteArray = new BigUint64Array(mtl);
+              //console.log(byteArray[0]); // 225
+              var myNumber = Number(byteArray[0]);
+             // console.log(offset);
+              offset = offset+myNumber;
+             // console.log(offset);
+
+              var jpgSize = reader.result.slice(offset,offset+8);
+              offset=offset+8;
+              var jpgSizeView = new Float64Array(jpgSize);
+              var byteArray = new BigUint64Array(jpgSize);
+             // console.log(byteArray[0]); 
+              var myNumber = Number(byteArray[0]);
+
+              
+            var newTexture =  reader.result.slice(offset,offset+myNumber); 
+            //console.log(newTexture);
+            var textureView = new Uint8Array(newTexture);
+           // console.log(textureView);
+            offset=offset+myNumber;
+
+           var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
+           var url = URL.createObjectURL(imageBlob);
+           allTextures.push(url);
+           console.log(url);
+           console.log("for step > "+ i);      
+               }
+           console.log("************* end of for ***************");
+
+        
+           const loader = new THREE.TextureLoader(loadManager);
+
+           for(var foo=0;foo<frameNumber;foo++){
+               console.log(allTextures[foo]);
+               var material = new THREE.MeshBasicMaterial({map: loader.load(allTextures[foo])});
+               allMaterials.push(material);   
+           }
+
+           loadManager.onLoad = () => {
+           console.log(" loadManager.onLoad");
+           var index = 0;
+        var dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+        function loadNextFile(){
+            if(index>drcMeshes.length-1) return;
+            dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
+            console.log(bufferGeometry);
+
+
+             //face indixes
+            //**********************************************
+             var geometry;
+            
+               geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
+               geometry.rotation.z = Math.PI;
+             
+             //**********************************************
+
+             var scale = 0.5
+             console.log(scale);
+             
+            //**********************************************
+
+            //**********************************************
+             geometry.scale.multiplyScalar(scale);
+             geometry.position.x = 0.06;
+             console.log(geometry.position.x);
+             geometry.position.y = 0.4;
+             console.log(geometry.position.y);
+             geometry.position.z = -0.7;
+             console.log(geometry.position.z);
+             geometry.castShadow = true;
+             geometry.receiveShadow = true;
+            //**********************************************
+            meshes.push(geometry);
+            index++;
+            loadNextFile();
+            });
+        }
+        loadNextFile();
+        };
+
+          }
+             reader.readAsArrayBuffer(data);
+         });
+
+
+        init();
+       animate();
+      }
+    </script>
+
+</html>
