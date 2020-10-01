@@ -53,6 +53,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
   
       var camera, cameraTarget, scene, renderer, controls;
       let currentIndex = null;
+      var flag=0;
 
       function init() {
       
@@ -118,9 +119,12 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         requestAnimationFrame( function render(t) {
           const index = Math.floor(t/80) % meshes.length;
           if (currentIndex !== index) {
-            scene.remove(meshes[currentIndex]);
+            if(flag==1){
+              scene.remove(meshes[currentIndex]);
             scene.add(meshes[index])
             currentIndex = index;
+            }
+            
             }
             controls.update();
             camera.lookAt(cameraTarget);
@@ -191,7 +195,10 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                    var dracoLoader = new DRACOLoader();
                    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
                    function loadNextFile(){
-                     if(index>drcMeshes.length-1) return;
+                     if(index>drcMeshes.length-1){
+                      flag=1;
+                      return;
+                     } 
                      dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
                         var geometry;
                         geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
