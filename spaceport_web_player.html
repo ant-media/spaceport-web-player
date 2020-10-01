@@ -130,7 +130,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             }
       window.onload = function() {
         //get spaceport containers
-        fetch('http://192.168.56.1:8080/all')
+        fetch('http://192.168.56.1:8080/SpaceportContainer')
         .then(response => response.blob())
         .then(data =>  {
              var file = data;
