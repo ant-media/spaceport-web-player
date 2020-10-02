@@ -153,7 +153,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       window.onload = function() {
         //get spaceport containers
         function loadNextContainer(){
-        var url = "http://192.168.56.1:8080/container_"+ numberContainer; 
+        var url = "sample_videos/container_"+ numberContainer; 
         if(numberContainer>19) return;    
         fetch(url)
         .then(response => response.blob())
