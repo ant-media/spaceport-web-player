@@ -4,7 +4,9 @@
 		<title>  Spaceport Volumetric Web Player</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="./main.css">
+    <link type="text/css" rel="stylesheet" href="./main.css">
+    <link rel="stylesheet" type="text/css" href="loading-bar.css"/>
+<script type="text/javascript" src="loading-bar.js"></script>
 		<style>
 			body {
 				color: #222;
@@ -24,6 +26,18 @@
   </head>
   
   <body>
+   
+    <div id="myItem1"></div>
+    <script>
+      /* construct manually */
+      var bar1 = new ldBar("#myItem1");
+      /* ldBar stored in the element */
+      var bar2 = document.getElementById('myItem1').ldBar;
+     // bar1.set(60);
+    </script>
+
+
+
 		<div id="info">
 			<a href="https://spaceport.tv/" target="_blank" rel="noopener">Spaceport</a> Volumetric Web Video Player<br />
 			<p>
@@ -54,6 +68,8 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       var camera, cameraTarget, scene, renderer, controls;
       let currentIndex = null;
       var flag=0;
+      var numberContainer=1;
+      var bar = 0;
 
       function init() {
       
@@ -116,10 +132,12 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       }
 
       function animate() {
+        
         requestAnimationFrame( function render(t) {
+         // console.log(meshes.length);
           const index = Math.floor(t/80) % meshes.length;
           if (currentIndex !== index) {
-            if(flag==1){
+            if(flag==1 && numberContainer>5){
               scene.remove(meshes[currentIndex]);
             scene.add(meshes[index])
             currentIndex = index;
@@ -134,13 +152,22 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             }
       window.onload = function() {
         //get spaceport containers
-        fetch('SpaceportContainer')
+        function loadNextContainer(){
+        var url = "http://192.168.56.1:8080/container_"+ numberContainer; 
+        if(numberContainer>19) return;    
+        fetch(url)
         .then(response => response.blob())
-        .then(data =>  {
-             var file = data;
-             var reader = new FileReader();
+        .then(data =>  {  
+            var reader = new FileReader();
              reader.onload = function(e) {
+             if(bar<100){
+              bar=bar+20;
+             bar1.set(bar);
+
+             }
+            
             var offset = 40;
+           
             var frameCount = reader.result.slice(offset,offset+8);
             var byteArray = new BigUint64Array(frameCount);
             var frameNumber = Number(byteArray[0]);
@@ -160,11 +187,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
               var byteArray = new BigUint64Array(dracoSize);
               var myNumber = Number(byteArray[0]);
               offset=offset+8;
-
               var drcMesh = reader.result.slice(offset,offset+myNumber);
               drcMeshes.push(drcMesh);
               offset=offset+myNumber;
-
               var mtl = reader.result.slice(offset,offset+8);
               offset=offset+8;
               var byteArray = new BigUint64Array(mtl);       
@@ -197,6 +222,11 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                    function loadNextFile(){
                      if(index>drcMeshes.length-1){
                       flag=1;
+                      allMaterials.length=0;
+                      allTextures.length = 0;
+                      drcMeshes.length = 0;
+                      numberContainer++;
+                     loadNextContainer();
                       return;
                      } 
                      dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
@@ -222,10 +252,15 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
           }
              reader.readAsArrayBuffer(data);
-         });
+         });   
+        
+     
+        }
+       
 
        init();
        animate();
+       loadNextContainer();
       }
     </script>
 
