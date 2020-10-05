@@ -24,17 +24,23 @@
 			}
 		</style>
   </head>
+
+
   
   <body>
-   
-    <div id="myItem1"></div>
+    <div id="myItem1"
+    data-preset="energy"
+    style="width:200px;height:200px"
+    ></div>
     <script>
-      /* construct manually */
-      var bar1 = new ldBar("#myItem1");
-      /* ldBar stored in the element */
-      var bar2 = document.getElementById('myItem1').ldBar;
-     // bar1.set(60);
-    </script>
+  /* construct manually */
+  var bar1 = new ldBar("#myItem1");
+  /* ldBar stored in the element */
+  var bar2 = document.getElementById('myItem1').ldBar;
+  bar1.set(60);
+</script>
+    
+
 
 
 
@@ -70,6 +76,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       var flag=0;
       var numberContainer=1;
       var bar = 0;
+      var replay = 1;
 
       function init() {
       
@@ -134,11 +141,18 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       function animate() {
         
         requestAnimationFrame( function render(t) {
-         // console.log(meshes.length);
           const index = Math.floor(t/80) % meshes.length;
+          console.log("index -> "+index);
+          console.log("meshes.length -> "+meshes.length);
+          if(index==meshes.length && meshes.length!=200)
+            replay = 0;
+          // if(controlReplay==1 && index==189)
+          // var replay = 1;
+          // else replay = 0;
+          // console.log(replay);
           if (currentIndex !== index) {
-            if(flag==1 && numberContainer>5){
-              scene.remove(meshes[currentIndex]);
+            if(flag==1 && numberContainer>10 && replay == 1){
+            scene.remove(meshes[currentIndex]);
             scene.add(meshes[index])
             currentIndex = index;
             }
@@ -148,6 +162,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             camera.lookAt(cameraTarget);
             renderer.render(scene, camera);
             requestAnimationFrame(render);
+            
+            
+
             });
             }
       window.onload = function() {
@@ -160,13 +177,10 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         .then(data =>  {  
             var reader = new FileReader();
              reader.onload = function(e) {
-             if(bar<100){
-              bar=bar+20;
-             bar1.set(bar);
-
-             }
+             
             
             var offset = 40;
+        
            
             var frameCount = reader.result.slice(offset,offset+8);
             var byteArray = new BigUint64Array(frameCount);
@@ -183,6 +197,15 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             }
                var i;
             for (i = 0; i <frameNumber ; i++) {
+              if(bar<100){
+              bar++;
+             bar1.set(bar);
+             }
+             if(bar==100){
+              document.getElementById("myItem1").setAttribute("hidden","");
+              // document.getElementById("myDiv").removeAttribute("hidden");
+             }
+
               var dracoSize = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(dracoSize);
               var myNumber = Number(byteArray[0]);
