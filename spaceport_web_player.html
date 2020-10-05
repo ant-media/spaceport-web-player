@@ -144,14 +144,17 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
           const index = Math.floor(t/80) % meshes.length;
           console.log("index -> "+index);
           console.log("meshes.length -> "+meshes.length);
-          if(index==meshes.length && meshes.length!=200)
+          if(numberContainer>10 && index==meshes.length-1 && meshes.length!=190){
             replay = 0;
+            console.log("replay sıfır oldu")
+          } 
           // if(controlReplay==1 && index==189)
           // var replay = 1;
           // else replay = 0;
           // console.log(replay);
+          console.log(replay);
           if (currentIndex !== index) {
-            if(flag==1 && numberContainer>10 && replay == 1){
+            if(flag==1 && numberContainer>10 && replay==1){
             scene.remove(meshes[currentIndex]);
             scene.add(meshes[index])
             currentIndex = index;
