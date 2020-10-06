@@ -30,14 +30,13 @@
   <body>
     <div id="myItem1"
     data-preset="energy"
-    style="width:200px;height:200px"
+    style="width:200px;height:150px"
     ></div>
     <script>
   /* construct manually */
   var bar1 = new ldBar("#myItem1");
   /* ldBar stored in the element */
   var bar2 = document.getElementById('myItem1').ldBar;
-  bar1.set(60);
 </script>
     
 
@@ -77,6 +76,8 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       var numberContainer=1;
       var bar = 0;
       var replay = 1;
+      var replayFlag = 0;
+      var createIndex = 0;
 
       function init() {
       
@@ -141,50 +142,68 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       function animate() {
         
         requestAnimationFrame( function render(t) {
-          const index = Math.floor(t/80) % meshes.length;
+
+
+          if(createIndex==1){
+            const index = Math.floor(t/80) % 190;
           console.log("index -> "+index);
           console.log("meshes.length -> "+meshes.length);
-          if(numberContainer>10 && index==meshes.length-1 && meshes.length!=190){
+          if(index==meshes.length && meshes.length!=189){
             replay = 0;
-            console.log("replay sıfır oldu")
-          } 
-          // if(controlReplay==1 && index==189)
-          // var replay = 1;
-          // else replay = 0;
-          // console.log(replay);
-          console.log(replay);
+            console.log("replay sifir oldu");
+
+          }
+         
+          else{
+            console.log("replay hala 1 ");
+            replay = 1;
+          }
+        
+
+
           if (currentIndex !== index) {
             if(flag==1 && numberContainer>10 && replay==1){
             scene.remove(meshes[currentIndex]);
             scene.add(meshes[index])
             currentIndex = index;
-            }
-            
-            }
+            } }
+          }
+
+        
+
             controls.update();
             camera.lookAt(cameraTarget);
             renderer.render(scene, camera);
             requestAnimationFrame(render);
-            
-            
-
             });
             }
+
+
+
+
       window.onload = function() {
         //get spaceport containers
         function loadNextContainer(){
-        var url = "sample_videos/container_"+ numberContainer; 
-        if(numberContainer>19) return;    
+         
+          var url = "sample_videos/container_"+ numberContainer; 
+       // var url ="https://github.com/ant-media/spaceport-web-player/tree/master/sample_videos/container_"+numberContainer; 
+        if(numberContainer>19){
+          return; 
+        }    
+
+        if(numberContainer>10){
+          createIndex = 1;
+        }    
+
+
+
         fetch(url)
         .then(response => response.blob())
         .then(data =>  {  
             var reader = new FileReader();
              reader.onload = function(e) {
-             
-            
-            var offset = 40;
-        
-           
+
+            var offset = 40;           
             var frameCount = reader.result.slice(offset,offset+8);
             var byteArray = new BigUint64Array(frameCount);
             var frameNumber = Number(byteArray[0]);
@@ -206,7 +225,8 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
              }
              if(bar==100){
               document.getElementById("myItem1").setAttribute("hidden","");
-              // document.getElementById("myDiv").removeAttribute("hidden");
+              bar1.set(0);
+              //document.getElementById("myItem1").removeAttribute("hidden");
              }
 
               var dracoSize = reader.result.slice(offset,offset+8);
@@ -252,6 +272,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                       allTextures.length = 0;
                       drcMeshes.length = 0;
                       numberContainer++;
+                      
                      loadNextContainer();
                       return;
                      } 
@@ -278,11 +299,11 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
           }
              reader.readAsArrayBuffer(data);
-         });   
-        
-     
-        }
-       
+         })
+        .catch((error) => {
+           console.error('Error:', error);
+           });   
+            }
 
        init();
        animate();
