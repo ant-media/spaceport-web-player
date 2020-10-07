@@ -62,15 +62,14 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       const allTextures  = [];
       const allMaterials = [];
       const drcMeshes = [];
-    
+      const totalFrame = 190;
   
       var camera, cameraTarget, scene, renderer, controls;
       let currentIndex = null;
-      var flag=0;
-      var numberContainer=1;
+      var flag = 0;
+      var numberContainer = 1;
       var bar = 0;
       var replay = 1;
-      var replayFlag = 0;
       var createIndex = 0;
 
       function init() {
@@ -139,9 +138,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
 
           if(createIndex==1){
-            const index = Math.floor(t/80) % 190;
+            const index = Math.floor(t/80) % totalFrame;
           
-          if(index==meshes.length && meshes.length!=189){
+          if(index==meshes.length && meshes.length!=totalFrame-1){
             replay = 0;
           }else{
             replay = 1;
