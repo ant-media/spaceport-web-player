@@ -25,8 +25,6 @@
 		</style>
   </head>
 
-
-  
   <body>
     <div id="myItem1"
     data-preset="energy"
@@ -39,10 +37,6 @@
   var bar2 = document.getElementById('myItem1').ldBar;
 </script>
     
-
-
-
-
 		<div id="info">
 			<a href="https://spaceport.tv/" target="_blank" rel="noopener">Spaceport</a> Volumetric Web Video Player<br />
 			<p>
@@ -146,21 +140,13 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
           if(createIndex==1){
             const index = Math.floor(t/80) % 190;
-          console.log("index -> "+index);
-          console.log("meshes.length -> "+meshes.length);
+          
           if(index==meshes.length && meshes.length!=189){
             replay = 0;
-            console.log("replay sifir oldu");
-
-          }
-         
-          else{
-            console.log("replay hala 1 ");
+          }else{
             replay = 1;
           }
-        
-
-
+      
           if (currentIndex !== index) {
             if(flag==1 && numberContainer>10 && replay==1){
             scene.remove(meshes[currentIndex]);
@@ -168,19 +154,12 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             currentIndex = index;
             } }
           }
-
-        
-
             controls.update();
             camera.lookAt(cameraTarget);
             renderer.render(scene, camera);
             requestAnimationFrame(render);
             });
             }
-
-
-
-
       window.onload = function() {
         //get spaceport containers
         function loadNextContainer(){
@@ -194,9 +173,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         if(numberContainer>10){
           createIndex = 1;
         }    
-
-
-
         fetch(url)
         .then(response => response.blob())
         .then(data =>  {  
