@@ -24,20 +24,19 @@
 			}
 		</style>
   </head>
-  
+
   <body>
-   
-    <div id="myItem1"></div>
+    <div id="myItem1"
+    data-preset="energy"
+    style="width:200px;height:150px"
+    ></div>
     <script>
-      /* construct manually */
-      var bar1 = new ldBar("#myItem1");
-      /* ldBar stored in the element */
-      var bar2 = document.getElementById('myItem1').ldBar;
-     // bar1.set(60);
-    </script>
-
-
-
+  /* construct manually */
+  var bar1 = new ldBar("#myItem1");
+  /* ldBar stored in the element */
+  var bar2 = document.getElementById('myItem1').ldBar;
+</script>
+    
 		<div id="info">
 			<a href="https://spaceport.tv/" target="_blank" rel="noopener">Spaceport</a> Volumetric Web Video Player<br />
 			<p>
@@ -63,13 +62,15 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       const allTextures  = [];
       const allMaterials = [];
       const drcMeshes = [];
-    
+      const totalFrame = 190;
   
       var camera, cameraTarget, scene, renderer, controls;
       let currentIndex = null;
-      var flag=0;
-      var numberContainer=1;
+      var flag = 0;
+      var numberContainer = 1;
       var bar = 0;
+      var replay = 1;
+      var createIndex = 0;
 
       function init() {
       
@@ -134,16 +135,24 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       function animate() {
         
         requestAnimationFrame( function render(t) {
-         // console.log(meshes.length);
-          const index = Math.floor(t/80) % meshes.length;
+
+
+          if(createIndex==1){
+            const index = Math.floor(t/80) % totalFrame;
+          
+          if(index==meshes.length && meshes.length!=totalFrame-1){
+            replay = 0;
+          }else{
+            replay = 1;
+          }
+      
           if (currentIndex !== index) {
-            if(flag==1 && numberContainer>5){
-              scene.remove(meshes[currentIndex]);
+            if(flag==1 && numberContainer>10 && replay==1){
+            scene.remove(meshes[currentIndex]);
             scene.add(meshes[index])
             currentIndex = index;
-            }
-            
-            }
+            } }
+          }
             controls.update();
             camera.lookAt(cameraTarget);
             renderer.render(scene, camera);
@@ -153,21 +162,23 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       window.onload = function() {
         //get spaceport containers
         function loadNextContainer(){
-        var url = "sample_videos/container_"+ numberContainer; 
-        if(numberContainer>19) return;    
+         
+          var url = "sample_videos/container_"+ numberContainer; 
+       // var url ="https://github.com/ant-media/spaceport-web-player/tree/master/sample_videos/container_"+numberContainer; 
+        if(numberContainer>19){
+          return; 
+        }    
+
+        if(numberContainer>10){
+          createIndex = 1;
+        }    
         fetch(url)
         .then(response => response.blob())
         .then(data =>  {  
             var reader = new FileReader();
              reader.onload = function(e) {
-             if(bar<100){
-              bar=bar+20;
-             bar1.set(bar);
 
-             }
-            
-            var offset = 40;
-           
+            var offset = 40;           
             var frameCount = reader.result.slice(offset,offset+8);
             var byteArray = new BigUint64Array(frameCount);
             var frameNumber = Number(byteArray[0]);
@@ -183,6 +194,16 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             }
                var i;
             for (i = 0; i <frameNumber ; i++) {
+              if(bar<100){
+              bar++;
+             bar1.set(bar);
+             }
+             if(bar==100){
+              document.getElementById("myItem1").setAttribute("hidden","");
+              bar1.set(0);
+              //document.getElementById("myItem1").removeAttribute("hidden");
+             }
+
               var dracoSize = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(dracoSize);
               var myNumber = Number(byteArray[0]);
@@ -226,6 +247,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                       allTextures.length = 0;
                       drcMeshes.length = 0;
                       numberContainer++;
+                      
                      loadNextContainer();
                       return;
                      } 
@@ -252,11 +274,11 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
           }
              reader.readAsArrayBuffer(data);
-         });   
-        
-     
-        }
-       
+         })
+        .catch((error) => {
+           console.error('Error:', error);
+           });   
+            }
 
        init();
        animate();

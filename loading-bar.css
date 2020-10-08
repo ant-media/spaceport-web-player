@@ -1,6 +1,14 @@
 .ldBar {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 500px;
+  height: auto;
+  text-align: center;
+  
 }
+
+
 .ldBar.label-center > .ldBar-label {
   position: absolute;
   top: 50%;
