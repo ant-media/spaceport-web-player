@@ -5,9 +5,8 @@
   width: 500px;
   height: auto;
   text-align: center;
-  
+  transform: translate(-50%,-50%);
 }
-
 
 .ldBar.label-center > .ldBar-label {
   position: absolute;
@@ -17,10 +16,12 @@
   transform: translate(-50%, -50%);
   text-shadow: 0 0 3px #fff;
 }
+
 .ldBar-label:after {
   content: "%";
   display: inline;
 }
+
 .ldBar.no-percent .ldBar-label:after {
   content: "";
 }
