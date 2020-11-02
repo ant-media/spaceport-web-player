@@ -26,6 +26,7 @@
   </head>
 
   <body>
+    <button class="play">Play</button>
     <div id="myItem1"
     data-preset="energy"
     style="width:200px;height:150px"
@@ -63,14 +64,19 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       const allMaterials = [];
       const drcMeshes = [];
       const totalFrame = 190;
+      const allAudio = [];
+      const timeStamps = [];
   
       var camera, cameraTarget, scene, renderer, controls;
       let currentIndex = null;
       var flag = 0;
-      var numberContainer = 1;
+      var numberContainer = 0;
       var bar = 0;
       var replay = 1;
       var createIndex = 0;
+      var mainArray = new Uint8Array(0);
+     
+      var audioCtx;
 
       function init() {
       
@@ -118,6 +124,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         controls.maxDistance = 7;
         controls.maxPolarAngle = Math.PI/2;
 
+        
+       
+
       }
 
       function addShadowedLight(x, y, z, color, intensity) {
@@ -133,32 +142,48 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       }
 
       function animate() {
-        
-        requestAnimationFrame( function render(t) {
+        var intervalId;
+        var interval = 80;
+        let clock = new THREE.Clock();
+        var index = 0;
+        startInterval(timeStamps[index-0]);
 
-
-          if(createIndex==1){
-            const index = Math.floor(t/80) % totalFrame;
-          
-          if(index==meshes.length && meshes.length!=totalFrame-1){
-            replay = 0;
-          }else{
-            replay = 1;
-          }
-      
-          if (currentIndex !== index) {
-            if(flag==1 && numberContainer>10 && replay==1){
-            scene.remove(meshes[currentIndex]);
-            scene.add(meshes[index])
-            currentIndex = index;
-            } }
-          }
+        function startInterval(_interval){
+          intervalId = setInterval(function(){
+             requestAnimationFrame( function render(t) {
+                if(createIndex==1){
+                  if(flag==1 && numberContainer>10 && replay==1){
+                    //console.log("u ll see someting");
+                    if(index>0)
+                    scene.remove(meshes[index-1]);
+                    scene.add(meshes[index]);
+                    console.log("ekrana bastirilan frame"+ index);
+                    index++;
+                    interval=timeStamps[index]-timeStamps[index-1];
+                    if(index>meshes.length){
+                      //return;
+                      index=0;
+                      console.log("end");}     
+                       }
+                      }   
             controls.update();
             camera.lookAt(cameraTarget);
             renderer.render(scene, camera);
-            requestAnimationFrame(render);
             });
-            }
+
+            clearInterval(intervalId);
+         
+            console.log("interval"+ interval);
+            startInterval(interval);
+
+        //end of the function
+      },_interval);
+
+        }
+
+          }
+
+
       window.onload = function() {
         //get spaceport containers
         function loadNextContainer(){
@@ -170,7 +195,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         }    
 
         if(numberContainer>10){
-          createIndex = 1;
+         //
         }    
         fetch(url)
         .then(response => response.blob())
@@ -178,6 +203,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             var reader = new FileReader();
              reader.onload = function(e) {
 
+            console.log(reader.result);
             var offset = 40;           
             var frameCount = reader.result.slice(offset,offset+8);
             var byteArray = new BigUint64Array(frameCount);
@@ -187,6 +213,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             for (i = 0; i <frameNumber ; i++) {
               var timeStamp = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(timeStamp);
+              var myNumber = Number(byteArray[0]);
+              //console.log(myNumber);
+              timeStamps.push(myNumber);
               offset=offset+8;
               var framePosition = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(framePosition);
@@ -226,11 +255,29 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
               var newTexture =  reader.result.slice(offset,offset+myNumber); 
               var textureView = new Uint8Array(newTexture);
               offset=offset+myNumber;
+             
               
               var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
               var url = URL.createObjectURL(imageBlob);
               allTextures.push(url);      
               }
+
+              console.log("reader result byteLength ", reader.result.byteLength);
+              console.log("offset "+ offset);
+              var audioData= reader.result.slice(offset,reader.result.byteLength);
+              console.log(audioData.byteLength);
+              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              var sourceTemp = audioCtx.createBufferSource();
+              audioCtx.decodeAudioData(audioData, function(buffer) {
+              allAudio.push(buffer); 
+               });
+              
+              
+             
+              
+              
+              
+
                const loader = new THREE.TextureLoader(loadManager);
                for(var foo=0;foo<frameNumber;foo++){
                  var material = new THREE.MeshBasicMaterial({map: loader.load(allTextures[foo])});
@@ -281,8 +328,48 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             }
 
        init();
-       animate();
+       
        loadNextContainer();
+       animate();
+       const play = document.querySelector('.play');
+       // play.setAttribute('disabled', 'disabled');
+
+       play.onclick = function() {
+        createIndex = 1;
+         playAudio();
+        
+    };
+      
+       
+       
+    
+
+   var volumeSeq=0;
+
+    function playAudio(){
+      var loopCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var source=loopCtx.createBufferSource();
+      if(volumeSeq>allAudio.length-1){ volumeSeq=1;
+      return;
+     }
+     console.log(volumeSeq);
+      source.buffer = allAudio[volumeSeq];
+      console.log(source.buffer);
+      source.connect(loopCtx.destination);
+      source.loop = false;
+
+      source.start(0);
+      source.onended = function () {
+        
+        console.log('ended');
+        volumeSeq++;
+        playAudio();
+}
+    };
+
+
+
+
       }
     </script>
 
