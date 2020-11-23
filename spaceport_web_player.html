@@ -57,16 +57,16 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       // Configure decoder and create loader.
       var textureLoader = new THREE.TextureLoader();
       const loadManager = new THREE.LoadingManager();
+      var dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
       
-          
       const meshes = [];
       const allTextures  = [];
       const allMaterials = [];
       const drcMeshes = [];
-      const totalFrame = 190;
+      const totalFrame = 200;
       const allAudio = [];
       const timeStamps = [];
-  
       var camera, cameraTarget, scene, renderer, controls;
       let currentIndex = null;
       var flag = 0;
@@ -75,10 +75,12 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       var replay = 1;
       var createIndex = 0;
       var mainArray = new Uint8Array(0);
-     
       var audioCtx;
 
       function init() {
+       
+
+       
       
         var container = document.createElement('div');
         document.body.appendChild(container);
@@ -91,7 +93,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         //scene
         scene = new THREE.Scene();
         scene.fog = new THREE.Fog(0x72645b, 2, 15);
-
 
         // Ground
         var plane = new THREE.Mesh(
@@ -123,10 +124,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         controls.minDistance = 2;
         controls.maxDistance = 7;
         controls.maxPolarAngle = Math.PI/2;
-
-        
-       
-
       }
 
       function addShadowedLight(x, y, z, color, intensity) {
@@ -159,7 +156,8 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                     scene.add(meshes[index]);
                     console.log("ekrana bastirilan frame"+ index);
                     index++;
-                    interval=timeStamps[index]-timeStamps[index-1];
+                   // interval=timeStamps[index]-timeStamps[index-1];
+                    interval = 83.333;
                     if(index>meshes.length){
                       //return;
                       index=0;
@@ -183,12 +181,10 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
           }
 
-
       window.onload = function() {
         //get spaceport containers
-        function loadNextContainer(){
-         
-          var url = "sample_videos/container_"+ numberContainer; 
+        function loadNextContainer(){ 
+        var url = "newContainers/container_"+ numberContainer; 
        // var url ="https://github.com/ant-media/spaceport-web-player/tree/master/sample_videos/container_"+numberContainer; 
         if(numberContainer>19){
           return; 
@@ -200,9 +196,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         fetch(url)
         .then(response => response.blob())
         .then(data =>  {  
+            console.log("container > " + numberContainer);
             var reader = new FileReader();
-             reader.onload = function(e) {
-
+            reader.onload = function(e) {
             console.log(reader.result);
             var offset = 40;           
             var frameCount = reader.result.slice(offset,offset+8);
@@ -210,7 +206,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
             var frameNumber = Number(byteArray[0]);
             offset=offset+8;
             var i;
-            for (i = 0; i <frameNumber ; i++) {
+            for (i = 0; i < frameNumber ; i++) {
               var timeStamp = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(timeStamp);
               var myNumber = Number(byteArray[0]);
@@ -231,40 +227,39 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
               document.getElementById("myItem1").setAttribute("hidden","");
               bar1.set(0);
               //document.getElementById("myItem1").removeAttribute("hidden");
-             }
-
+             }       
               var dracoSize = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(dracoSize);
               var myNumber = Number(byteArray[0]);
               offset=offset+8;
+
               var drcMesh = reader.result.slice(offset,offset+myNumber);
               drcMeshes.push(drcMesh);
               offset=offset+myNumber;
               var mtl = reader.result.slice(offset,offset+8);
               offset=offset+8;
+
               var byteArray = new BigUint64Array(mtl);       
               var myNumber = Number(byteArray[0]);
               offset = offset+myNumber;
-           
               var jpgSize = reader.result.slice(offset,offset+8);
               offset=offset+8;
+
               var jpgSizeView = new Float64Array(jpgSize);
               var byteArray = new BigUint64Array(jpgSize);
               var myNumber = Number(byteArray[0]);
-              
               var newTexture =  reader.result.slice(offset,offset+myNumber); 
               var textureView = new Uint8Array(newTexture);
               offset=offset+myNumber;
              
-              
               var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
               var url = URL.createObjectURL(imageBlob);
               allTextures.push(url);      
               }
 
               console.log("reader result byteLength ", reader.result.byteLength);
-              console.log("offset "+ offset);
-              var audioData= reader.result.slice(offset,reader.result.byteLength);
+              console.log("offset " + offset);
+              var audioData = reader.result.slice(offset,reader.result.byteLength);
               console.log(audioData.byteLength);
               audioCtx = new (window.AudioContext || window.webkitAudioContext)();
               var sourceTemp = audioCtx.createBufferSource();
@@ -272,11 +267,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
               allAudio.push(buffer); 
                });
               
-              
-             
-              
-              
-              
+
+ 
+
 
                const loader = new THREE.TextureLoader(loadManager);
                for(var foo=0;foo<frameNumber;foo++){
@@ -285,8 +278,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                  }
                  loadManager.onLoad = () => {
                    var index = 0;
-                   var dracoLoader = new DRACOLoader();
-                   dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+                   
                    function loadNextFile(){
                      if(index>drcMeshes.length-1){
                       flag=1;
@@ -298,7 +290,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                      loadNextContainer();
                       return;
                      } 
-                     dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
+                         dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
                         var geometry;
                         geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
                         geometry.rotation.z = Math.PI;
