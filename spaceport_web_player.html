@@ -5,13 +5,12 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link type="text/css" rel="stylesheet" href="./main.css">
-    <link rel="stylesheet" type="text/css" href="loading-bar.css"/>
-<script type="text/javascript" src="loading-bar.js"></script>
+    <script type="text/javascript" src="loading-bar.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 		<style>
 			body {
 				color: #222;
 			}
-
 			a {
 				color: #2fa1d6;
 			}
@@ -26,15 +25,24 @@
   </head>
 
   <body>
-    <button class="play">Play</button>
+
+    <svg id="play"  viewBox="0 0 163 163" version="1.1" xmlns="http://www.w3.org/2000/svg" onclick="playAudio()" display="none"  xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"="0px">
+      <g fill="none">
+          <g  transform="translate(2.000000, 2.000000)" stroke-width="4">
+              <path d="M10,80 C10,118.107648 40.8923523,149 79,149 L79,149 C117.107648,149 148,118.107648 148,80 C148,41.8923523 117.107648,11 79,11" id="lineOne" stroke="#A5CB43"></path>
+              <path d="M105.9,74.4158594 L67.2,44.2158594 C63.5,41.3158594 58,43.9158594 58,48.7158594 L58,109.015859 C58,113.715859 63.4,116.415859 67.2,113.515859 L105.9,83.3158594 C108.8,81.1158594 108.8,76.6158594 105.9,74.4158594 L105.9,74.4158594 Z" id="triangle" stroke="#A3CD3A"></path>
+              <path d="M159,79.5 C159,35.5933624 123.406638,0 79.5,0 C35.5933624,0 0,35.5933624 0,79.5 C0,123.406638 35.5933624,159 79.5,159 L79.5,159" id="lineTwo" stroke="#A5CB43"></path>
+          </g>
+      </g>
+  </svg>
+
+
     <div id="myItem1"
     data-preset="energy"
     style="width:200px;height:150px"
     ></div>
     <script>
-  /* construct manually */
   var bar1 = new ldBar("#myItem1");
-  /* ldBar stored in the element */
   var bar2 = document.getElementById('myItem1').ldBar;
 </script>
     
@@ -45,43 +53,29 @@
 			</p>
 			Developed by
 			<a href="https://antmedia.io/" target="_blank" rel="noopener">Ant Media</a>.<br />
-		</div>
-
-
+    </div>
     <script type="module">
-
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
-import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
-        
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
+    import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+    var dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath( 'draco/' );
+    dracoLoader.setDecoderConfig( { type: 'js' } );
       // Configure decoder and create loader.
       var textureLoader = new THREE.TextureLoader();
       const loadManager = new THREE.LoadingManager();
-      var dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-      
+      const loader = new DRACOLoader();
       const meshes = [];
       const allTextures  = [];
       const allMaterials = [];
       const drcMeshes = [];
       const totalFrame = 200;
-      const allAudio = [];
       const timeStamps = [];
+      const audioTimeStamps = [];
       var camera, cameraTarget, scene, renderer, controls;
-      let currentIndex = null;
-      var flag = 0;
-      var numberContainer = 0;
-      var bar = 0;
-      var replay = 1;
-      var createIndex = 0;
-      var mainArray = new Uint8Array(0);
-      var audioCtx;
-
+      var currentIndex = null; var flag = 0; var numberContainer = 0; var bar = 0; var replay = 1;
+    
       function init() {
-       
-
-       
-      
         var container = document.createElement('div');
         document.body.appendChild(container);
 
@@ -150,28 +144,23 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
              requestAnimationFrame( function render(t) {
                 if(createIndex==1){
                   if(flag==1 && numberContainer>10 && replay==1){
-                    //console.log("u ll see someting");
+                    document.getElementById("play").style.display="none";
                     if(index>0)
                     scene.remove(meshes[index-1]);
                     scene.add(meshes[index]);
-                    console.log("ekrana bastirilan frame"+ index);
                     index++;
-                   // interval=timeStamps[index]-timeStamps[index-1];
+                    //interval=timeStamps[index]-timeStamps[index-1];
                     interval = 83.333;
                     if(index>meshes.length){
-                      //return;
                       index=0;
-                      console.log("end");}     
+                        }     
                        }
                       }   
             controls.update();
             camera.lookAt(cameraTarget);
             renderer.render(scene, camera);
             });
-
             clearInterval(intervalId);
-         
-            console.log("interval"+ interval);
             startInterval(interval);
 
         //end of the function
@@ -184,22 +173,18 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       window.onload = function() {
         //get spaceport containers
         function loadNextContainer(){ 
-        var url = "newContainers/container_"+ numberContainer; 
-       // var url ="https://github.com/ant-media/spaceport-web-player/tree/master/sample_videos/container_"+numberContainer; 
+        var url = "sample_videos/container_" + numberContainer; 
         if(numberContainer>19){
           return; 
         }    
-
         if(numberContainer>10){
-         //
+          // createIndex = 1;
         }    
         fetch(url)
         .then(response => response.blob())
         .then(data =>  {  
-            console.log("container > " + numberContainer);
             var reader = new FileReader();
             reader.onload = function(e) {
-            console.log(reader.result);
             var offset = 40;           
             var frameCount = reader.result.slice(offset,offset+8);
             var byteArray = new BigUint64Array(frameCount);
@@ -225,9 +210,10 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
              }
              if(bar==100){
               document.getElementById("myItem1").setAttribute("hidden","");
+              document.getElementById("play").style.display = "block";
               bar1.set(0);
-              //document.getElementById("myItem1").removeAttribute("hidden");
              }       
+             
               var dracoSize = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(dracoSize);
               var myNumber = Number(byteArray[0]);
@@ -242,9 +228,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
               var byteArray = new BigUint64Array(mtl);       
               var myNumber = Number(byteArray[0]);
               offset = offset+myNumber;
+
               var jpgSize = reader.result.slice(offset,offset+8);
               offset=offset+8;
-
               var jpgSizeView = new Float64Array(jpgSize);
               var byteArray = new BigUint64Array(jpgSize);
               var myNumber = Number(byteArray[0]);
@@ -254,23 +240,16 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
              
               var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
               var url = URL.createObjectURL(imageBlob);
-              allTextures.push(url);      
+              allTextures.push(url);         
               }
 
-              console.log("reader result byteLength ", reader.result.byteLength);
-              console.log("offset " + offset);
               var audioData = reader.result.slice(offset,reader.result.byteLength);
-              console.log(audioData.byteLength);
               audioCtx = new (window.AudioContext || window.webkitAudioContext)();
               var sourceTemp = audioCtx.createBufferSource();
               audioCtx.decodeAudioData(audioData, function(buffer) {
               allAudio.push(buffer); 
                });
               
-
- 
-
-
                const loader = new THREE.TextureLoader(loadManager);
                for(var foo=0;foo<frameNumber;foo++){
                  var material = new THREE.MeshBasicMaterial({map: loader.load(allTextures[foo])});
@@ -290,19 +269,19 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                      loadNextContainer();
                       return;
                      } 
-                         dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
-                        var geometry;
-                        geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
-                        geometry.rotation.z = Math.PI;
-                        var scale = 0.5;
-            //**********************************************
-             geometry.scale.multiplyScalar(scale);
-             geometry.position.x = 0.06;     
-             geometry.position.y = 0.4;
+                     dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
+                     var geometry;
+                     geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
+                     geometry.rotation.z = Math.PI;
+                     var scale = 0.5;
+            // **********************************************
+            geometry.scale.multiplyScalar(scale);
+            geometry.position.x = 0.06;     
+            geometry.position.y = 0.4;
              geometry.position.z = -0.7; 
              geometry.castShadow = true;
              geometry.receiveShadow = true;
-            //**********************************************
+            // **********************************************
             meshes.push(geometry);
             index++;
             loadNextFile();
@@ -310,7 +289,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         }
         loadNextFile();
         };
-
           }
              reader.readAsArrayBuffer(data);
          })
@@ -318,50 +296,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
            console.error('Error:', error);
            });   
             }
-
-       init();
-       
+       init();   
        loadNextContainer();
        animate();
-       const play = document.querySelector('.play');
-       // play.setAttribute('disabled', 'disabled');
-
-       play.onclick = function() {
-        createIndex = 1;
-         playAudio();
-        
-    };
-      
-       
-       
-    
-
-   var volumeSeq=0;
-
-    function playAudio(){
-      var loopCtx = new (window.AudioContext || window.webkitAudioContext)();
-      var source=loopCtx.createBufferSource();
-      if(volumeSeq>allAudio.length-1){ volumeSeq=1;
-      return;
-     }
-     console.log(volumeSeq);
-      source.buffer = allAudio[volumeSeq];
-      console.log(source.buffer);
-      source.connect(loopCtx.destination);
-      source.loop = false;
-
-      source.start(0);
-      source.onended = function () {
-        
-        console.log('ended');
-        volumeSeq++;
-        playAudio();
-}
-    };
-
-
-
-
       }
     </script>
 
