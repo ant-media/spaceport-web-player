@@ -5,13 +5,12 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link type="text/css" rel="stylesheet" href="./main.css">
-    <link rel="stylesheet" type="text/css" href="loading-bar.css"/>
-<script type="text/javascript" src="loading-bar.js"></script>
+    <script type="text/javascript" src="loading-bar.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 		<style>
 			body {
 				color: #222;
 			}
-
 			a {
 				color: #2fa1d6;
 			}
@@ -26,14 +25,24 @@
   </head>
 
   <body>
+
+    <svg id="play"  viewBox="0 0 163 163" version="1.1" xmlns="http://www.w3.org/2000/svg" onclick="playAudio()" display="none"  xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"="0px">
+      <g fill="none">
+          <g  transform="translate(2.000000, 2.000000)" stroke-width="4">
+              <path d="M10,80 C10,118.107648 40.8923523,149 79,149 L79,149 C117.107648,149 148,118.107648 148,80 C148,41.8923523 117.107648,11 79,11" id="lineOne" stroke="#A5CB43"></path>
+              <path d="M105.9,74.4158594 L67.2,44.2158594 C63.5,41.3158594 58,43.9158594 58,48.7158594 L58,109.015859 C58,113.715859 63.4,116.415859 67.2,113.515859 L105.9,83.3158594 C108.8,81.1158594 108.8,76.6158594 105.9,74.4158594 L105.9,74.4158594 Z" id="triangle" stroke="#A3CD3A"></path>
+              <path d="M159,79.5 C159,35.5933624 123.406638,0 79.5,0 C35.5933624,0 0,35.5933624 0,79.5 C0,123.406638 35.5933624,159 79.5,159 L79.5,159" id="lineTwo" stroke="#A5CB43"></path>
+          </g>
+      </g>
+  </svg>
+
+
     <div id="myItem1"
     data-preset="energy"
     style="width:200px;height:150px"
     ></div>
     <script>
-  /* construct manually */
   var bar1 = new ldBar("#myItem1");
-  /* ldBar stored in the element */
   var bar2 = document.getElementById('myItem1').ldBar;
 </script>
     
@@ -44,36 +53,29 @@
 			</p>
 			Developed by
 			<a href="https://antmedia.io/" target="_blank" rel="noopener">Ant Media</a>.<br />
-		</div>
-
-
+    </div>
     <script type="module">
-
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
-import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
-        
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
+    import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+    var dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath( 'draco/' );
+    dracoLoader.setDecoderConfig( { type: 'js' } );
       // Configure decoder and create loader.
       var textureLoader = new THREE.TextureLoader();
       const loadManager = new THREE.LoadingManager();
-      
-          
+      const loader = new DRACOLoader();
       const meshes = [];
       const allTextures  = [];
       const allMaterials = [];
       const drcMeshes = [];
-      const totalFrame = 190;
-  
+      const totalFrame = 200;
+      const timeStamps = [];
+      const audioTimeStamps = [];
       var camera, cameraTarget, scene, renderer, controls;
-      let currentIndex = null;
-      var flag = 0;
-      var numberContainer = 1;
-      var bar = 0;
-      var replay = 1;
-      var createIndex = 0;
-
+      var currentIndex = null; var flag = 0; var numberContainer = 0; var bar = 0; var replay = 1;
+    
       function init() {
-      
         var container = document.createElement('div');
         document.body.appendChild(container);
 
@@ -85,7 +87,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         //scene
         scene = new THREE.Scene();
         scene.fog = new THREE.Fog(0x72645b, 2, 15);
-
 
         // Ground
         var plane = new THREE.Mesh(
@@ -117,7 +118,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         controls.minDistance = 2;
         controls.maxDistance = 7;
         controls.maxPolarAngle = Math.PI/2;
-
       }
 
       function addShadowedLight(x, y, z, color, intensity) {
@@ -133,60 +133,70 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
       }
 
       function animate() {
-        
-        requestAnimationFrame( function render(t) {
+        var intervalId;
+        var interval = 80;
+        let clock = new THREE.Clock();
+        var index = 0;
+        startInterval(timeStamps[index-0]);
 
-
-          if(createIndex==1){
-            const index = Math.floor(t/80) % totalFrame;
-          
-          if(index==meshes.length && meshes.length!=totalFrame-1){
-            replay = 0;
-          }else{
-            replay = 1;
-          }
-      
-          if (currentIndex !== index) {
-            if(flag==1 && numberContainer>10 && replay==1){
-            scene.remove(meshes[currentIndex]);
-            scene.add(meshes[index])
-            currentIndex = index;
-            } }
-          }
+        function startInterval(_interval){
+          intervalId = setInterval(function(){
+             requestAnimationFrame( function render(t) {
+                if(createIndex==1){
+                  if(flag==1 && numberContainer>10 && replay==1){
+                    document.getElementById("play").style.display="none";
+                    if(index>0)
+                    scene.remove(meshes[index-1]);
+                    scene.add(meshes[index]);
+                    index++;
+                    //interval=timeStamps[index]-timeStamps[index-1];
+                    interval = 83.333;
+                    if(index>meshes.length){
+                      index=0;
+                        }     
+                       }
+                      }   
             controls.update();
             camera.lookAt(cameraTarget);
             renderer.render(scene, camera);
-            requestAnimationFrame(render);
             });
-            }
+            clearInterval(intervalId);
+            startInterval(interval);
+
+        //end of the function
+      },_interval);
+
+        }
+
+          }
+
       window.onload = function() {
         //get spaceport containers
-        function loadNextContainer(){
-         
-          var url = "sample_videos/container_"+ numberContainer; 
-       // var url ="https://github.com/ant-media/spaceport-web-player/tree/master/sample_videos/container_"+numberContainer; 
+        function loadNextContainer(){ 
+        var url = "sample_videos/container_" + numberContainer; 
         if(numberContainer>19){
           return; 
         }    
-
         if(numberContainer>10){
-          createIndex = 1;
+          // createIndex = 1;
         }    
         fetch(url)
         .then(response => response.blob())
         .then(data =>  {  
             var reader = new FileReader();
-             reader.onload = function(e) {
-
+            reader.onload = function(e) {
             var offset = 40;           
             var frameCount = reader.result.slice(offset,offset+8);
             var byteArray = new BigUint64Array(frameCount);
             var frameNumber = Number(byteArray[0]);
             offset=offset+8;
             var i;
-            for (i = 0; i <frameNumber ; i++) {
+            for (i = 0; i < frameNumber ; i++) {
               var timeStamp = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(timeStamp);
+              var myNumber = Number(byteArray[0]);
+              //console.log(myNumber);
+              timeStamps.push(myNumber);
               offset=offset+8;
               var framePosition = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(framePosition);
@@ -200,37 +210,46 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
              }
              if(bar==100){
               document.getElementById("myItem1").setAttribute("hidden","");
+              document.getElementById("play").style.display = "block";
               bar1.set(0);
-              //document.getElementById("myItem1").removeAttribute("hidden");
-             }
-
+             }       
+             
               var dracoSize = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(dracoSize);
               var myNumber = Number(byteArray[0]);
               offset=offset+8;
+
               var drcMesh = reader.result.slice(offset,offset+myNumber);
               drcMeshes.push(drcMesh);
               offset=offset+myNumber;
               var mtl = reader.result.slice(offset,offset+8);
               offset=offset+8;
+
               var byteArray = new BigUint64Array(mtl);       
               var myNumber = Number(byteArray[0]);
               offset = offset+myNumber;
-           
+
               var jpgSize = reader.result.slice(offset,offset+8);
               offset=offset+8;
               var jpgSizeView = new Float64Array(jpgSize);
               var byteArray = new BigUint64Array(jpgSize);
               var myNumber = Number(byteArray[0]);
-              
               var newTexture =  reader.result.slice(offset,offset+myNumber); 
               var textureView = new Uint8Array(newTexture);
               offset=offset+myNumber;
-              
+             
               var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
               var url = URL.createObjectURL(imageBlob);
-              allTextures.push(url);      
+              allTextures.push(url);         
               }
+
+              var audioData = reader.result.slice(offset,reader.result.byteLength);
+              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              var sourceTemp = audioCtx.createBufferSource();
+              audioCtx.decodeAudioData(audioData, function(buffer) {
+              allAudio.push(buffer); 
+               });
+              
                const loader = new THREE.TextureLoader(loadManager);
                for(var foo=0;foo<frameNumber;foo++){
                  var material = new THREE.MeshBasicMaterial({map: loader.load(allTextures[foo])});
@@ -238,8 +257,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                  }
                  loadManager.onLoad = () => {
                    var index = 0;
-                   var dracoLoader = new DRACOLoader();
-                   dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+                   
                    function loadNextFile(){
                      if(index>drcMeshes.length-1){
                       flag=1;
@@ -252,18 +270,18 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
                       return;
                      } 
                      dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
-                        var geometry;
-                        geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
-                        geometry.rotation.z = Math.PI;
-                        var scale = 0.5;
-            //**********************************************
-             geometry.scale.multiplyScalar(scale);
-             geometry.position.x = 0.06;     
-             geometry.position.y = 0.4;
+                     var geometry;
+                     geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
+                     geometry.rotation.z = Math.PI;
+                     var scale = 0.5;
+            // **********************************************
+            geometry.scale.multiplyScalar(scale);
+            geometry.position.x = 0.06;     
+            geometry.position.y = 0.4;
              geometry.position.z = -0.7; 
              geometry.castShadow = true;
              geometry.receiveShadow = true;
-            //**********************************************
+            // **********************************************
             meshes.push(geometry);
             index++;
             loadNextFile();
@@ -271,7 +289,6 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
         }
         loadNextFile();
         };
-
           }
              reader.readAsArrayBuffer(data);
          })
@@ -279,10 +296,9 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
            console.error('Error:', error);
            });   
             }
-
-       init();
-       animate();
+       init();   
        loadNextContainer();
+       animate();
       }
     </script>
 
