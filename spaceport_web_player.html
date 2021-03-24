@@ -5,8 +5,10 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link type="text/css" rel="stylesheet" href="./main.css">
+   
     <script type="text/javascript" src="loading-bar.js"></script>
     <script type="text/javascript" src="main.js"></script>
+    
 		<style>
 			body {
 				color: #222;
@@ -24,6 +26,9 @@
 		</style>
   </head>
 
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
   <body>
 
     <svg id="play"  viewBox="0 0 163 163" version="1.1" xmlns="http://www.w3.org/2000/svg" onclick="playAudio()" display="none"  xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"="0px">
@@ -35,6 +40,12 @@
           </g>
       </g>
   </svg>
+
+  <!-- <div id="player">
+		<i class="fa fa-volume-down"></i>
+		<div id="volume"></div>
+		<i class="fa fa-volume-up"></i>
+	</div> -->
 
 
     <div id="myItem1"
@@ -58,6 +69,8 @@
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
     import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
     import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
+
     var dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath( 'draco/' );
     dracoLoader.setDecoderConfig( { type: 'js' } );
@@ -73,34 +86,52 @@
       const timeStamps = [];
       const audioTimeStamps = [];
       var camera, cameraTarget, scene, renderer, controls;
+      var wavBytes = [];
       var currentIndex = null; var flag = 0; var numberContainer = 0; var bar = 0; var replay = 1;
-    
+      var frameNumber = 1
+      
       function init() {
         var container = document.createElement('div');
         document.body.appendChild(container);
 
         //camera
-        camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 15);
-        camera.position.set(3, 0.15, 3);
+        camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 250);
+        camera.position.set(0, 50, 200);
         cameraTarget = new THREE.Vector3(0, 0, 0);
 
         //scene
         scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x72645b, 2, 15);
+        scene.background = new THREE.Color( 0xa0a0a0 );
+        scene.fog = new THREE.Fog( 0xa0a0a0, 0, 300);
 
-        // Ground
-        var plane = new THREE.Mesh(
-        new THREE.PlaneBufferGeometry(40, 40),
-        new THREE.MeshPhongMaterial({color: 0x999999, specular: 0x101010}));
-        plane.rotation.x = -Math.PI/2;
-        plane.position.y = -0.5;
-        scene.add(plane);
-        plane.receiveShadow = true;
+        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+				hemiLight.position.set( 0, 20, 0 );
+				scene.add( hemiLight );
+
 
         // Lights
-        scene.add(new THREE.HemisphereLight(0x443333, 0x111122));
-        addShadowedLight(1, 1, 1, 0xffffff, 1.35);
-        addShadowedLight(0.5, 1, -1, 0xffaa00, 1);
+        scene.add(new THREE.HemisphereLight( 0xffffff, 0x444444));
+        //addShadowedLight(1, 1, 1, 0xffffff, 1.35);
+        //addShadowedLight(0.5, 1, -1, 0xffaa00, 1);
+
+        const dirLight = new THREE.DirectionalLight( 0xffffff );
+				dirLight.position.set( - 3, 10, - 10 );
+				dirLight.castShadow = true;
+				dirLight.shadow.camera.top = 10;
+				dirLight.shadow.camera.bottom = - 10;
+				dirLight.shadow.camera.left = - 10;
+				dirLight.shadow.camera.right = 10;
+				dirLight.shadow.camera.near = 0.1;
+				dirLight.shadow.camera.far = 40;
+				scene.add( dirLight );
+
+
+         const light = new THREE.PointLight( 0xffffff  );
+        
+         light.position.set( 50, 100, 50 );
+         light.power=3
+         scene.add( light );
+
 
         // renderer
         renderer = new THREE.WebGLRenderer({antialias: true});
@@ -116,14 +147,14 @@
         controls.dampingFactor = 0.05;
         controls.screenSpacePanning = false;
         controls.minDistance = 2;
-        controls.maxDistance = 7;
-        controls.maxPolarAngle = Math.PI/2;
+        controls.maxDistance = 115;
+        //controls.maxPolarAngle = Math.PI/2;
       }
 
       function addShadowedLight(x, y, z, color, intensity) {
         var directionalLight = new THREE.DirectionalLight(color, intensity);
         directionalLight.position.set(x, y, z);
-        scene.add(directionalLight);
+        //scene.add(directionalLight);
       }
 
       function onWindowResize() {
@@ -143,7 +174,7 @@
           intervalId = setInterval(function(){
              requestAnimationFrame( function render(t) {
                 if(createIndex==1){
-                  if(flag==1 && numberContainer>10 && replay==1){
+                  if(flag==1 && numberContainer>=5 && replay==1){
                     document.getElementById("play").style.display="none";
                     if(index>0)
                     scene.remove(meshes[index-1]);
@@ -169,12 +200,19 @@
         }
 
           }
-
+      var ccc=1;
       window.onload = function() {
         //get spaceport containers
+        
+        const loader = new GLTFLoader().setPath( 'models/glTF/' );
+						loader.load( 'scene.gltf', function ( gltf ) {
+             gltf.scene.scale.multiplyScalar(2/5);
+             gltf.scene.position.y = -2         
+							scene.add( gltf.scene );
+						} );
         function loadNextContainer(){ 
-        var url = "sample_videos/container_" + numberContainer; 
-        if(numberContainer>19){
+        var url = "sample_videos/container" + numberContainer; 
+        if(numberContainer>399){
           return; 
         }    
         if(numberContainer>10){
@@ -186,69 +224,49 @@
             var reader = new FileReader();
             reader.onload = function(e) {
             var offset = 40;           
-            var frameCount = reader.result.slice(offset,offset+8);
-            var byteArray = new BigUint64Array(frameCount);
-            var frameNumber = Number(byteArray[0]);
-            offset=offset+8;
             var i;
-            for (i = 0; i < frameNumber ; i++) {
-              var timeStamp = reader.result.slice(offset,offset+8);
-              var byteArray = new BigUint64Array(timeStamp);
-              var myNumber = Number(byteArray[0]);
-              //console.log(myNumber);
-              timeStamps.push(myNumber);
-              offset=offset+8;
-              var framePosition = reader.result.slice(offset,offset+8);
-              var byteArray = new BigUint64Array(framePosition);
-              offset=offset+8; 
-            }
-               var i;
             for (i = 0; i <frameNumber ; i++) {
-              if(bar<100){
+              console.log("frame - | "+ ccc)
+              ccc++;
+              if(bar<399){
               bar++;
              bar1.set(bar);
              }
-             if(bar==100){
+             if(bar==398){
               document.getElementById("myItem1").setAttribute("hidden","");
               document.getElementById("play").style.display = "block";
               bar1.set(0);
              }       
-             
-              var dracoSize = reader.result.slice(offset,offset+8);
-              var byteArray = new BigUint64Array(dracoSize);
+              console.log("reading timestamp"); 
+              var timeStamp = reader.result.slice(offset,offset+8);
+              var byteArray = new BigUint64Array(timeStamp);
               var myNumber = Number(byteArray[0]);
+              timeStamps.push(myNumber);
+              console.log(myNumber);
               offset=offset+8;
-
+              console.log("reading draco");
+              var dracoSize = reader.result.slice(offset,offset+8);
+              byteArray = new BigUint64Array(dracoSize);
+              myNumber = Number(byteArray[0]);
+              console.log(myNumber)
+              offset=offset+8;
               var drcMesh = reader.result.slice(offset,offset+myNumber);
               drcMeshes.push(drcMesh);
               offset=offset+myNumber;
-              var mtl = reader.result.slice(offset,offset+8);
-              offset=offset+8;
-
-              var byteArray = new BigUint64Array(mtl);       
-              var myNumber = Number(byteArray[0]);
-              offset = offset+myNumber;
-
+              console.log("reading texture");
               var jpgSize = reader.result.slice(offset,offset+8);
               offset=offset+8;
-              var jpgSizeView = new Float64Array(jpgSize);
-              var byteArray = new BigUint64Array(jpgSize);
-              var myNumber = Number(byteArray[0]);
+              byteArray = new BigUint64Array(jpgSize);
+              myNumber = Number(byteArray[0]);
               var newTexture =  reader.result.slice(offset,offset+myNumber); 
               var textureView = new Uint8Array(newTexture);
               offset=offset+myNumber;
-             
               var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
               var url = URL.createObjectURL(imageBlob);
               allTextures.push(url);         
               }
 
-              var audioData = reader.result.slice(offset,reader.result.byteLength);
-              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-              var sourceTemp = audioCtx.createBufferSource();
-              audioCtx.decodeAudioData(audioData, function(buffer) {
-              allAudio.push(buffer); 
-               });
+             
               
                const loader = new THREE.TextureLoader(loadManager);
                for(var foo=0;foo<frameNumber;foo++){
@@ -273,14 +291,14 @@
                      var geometry;
                      geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
                      geometry.rotation.z = Math.PI;
-                     var scale = 0.5;
+                     var scale = 6;
             // **********************************************
             geometry.scale.multiplyScalar(scale);
             geometry.position.x = 0.06;     
-            geometry.position.y = 0.4;
-             geometry.position.z = -0.7; 
-             geometry.castShadow = true;
-             geometry.receiveShadow = true;
+            geometry.position.y = 9;
+            geometry.position.z = -8; 
+            geometry.castShadow = true;
+            geometry.receiveShadow = true;
             // **********************************************
             meshes.push(geometry);
             index++;
@@ -299,7 +317,36 @@
        init();   
        loadNextContainer();
        animate();
+
+       
       }
-    </script>
+  
+  
+  
+ 
+    $("#volume").slider({
+  	min: 0,
+  	max: 100,
+  	value: 25,
+		range: "min",
+  	slide: function(event, ui) {
+    	setVolume(ui.value / 100);
+  	}
+	});
+	
+	var myMedia = document.createElement('audio');
+	$('#player').append(myMedia);
+	myMedia.id = "myMedia";
+
+
+	var volumeLevel;
+	function setVolume(myVolume) {
+    var myMedia = document.getElementById('myMedia');
+    volumeLevel = myVolume;
+    //console.log(myVolume);
+    setAudioLevel(myVolume);
+	}
+
+  </script>
 
 </html>
