@@ -226,34 +226,34 @@
             var offset = 40;           
             var i;
             for (i = 0; i <frameNumber ; i++) {
-              console.log("frame - | "+ ccc)
+              //console.log("frame - | "+ ccc)
               ccc++;
-              if(bar<399){
-              bar++;
+              if(bar<100){
+              bar=bar+0.25;
              bar1.set(bar);
              }
-             if(bar==398){
+             if(bar==100){
               document.getElementById("myItem1").setAttribute("hidden","");
               document.getElementById("play").style.display = "block";
               bar1.set(0);
              }       
-              console.log("reading timestamp"); 
+              //console.log("reading timestamp"); 
               var timeStamp = reader.result.slice(offset,offset+8);
               var byteArray = new BigUint64Array(timeStamp);
               var myNumber = Number(byteArray[0]);
               timeStamps.push(myNumber);
-              console.log(myNumber);
+              //console.log(myNumber);
               offset=offset+8;
-              console.log("reading draco");
+              //console.log("reading draco");
               var dracoSize = reader.result.slice(offset,offset+8);
               byteArray = new BigUint64Array(dracoSize);
               myNumber = Number(byteArray[0]);
-              console.log(myNumber)
+              //console.log(myNumber)
               offset=offset+8;
               var drcMesh = reader.result.slice(offset,offset+myNumber);
               drcMeshes.push(drcMesh);
               offset=offset+myNumber;
-              console.log("reading texture");
+              //console.log("reading texture");
               var jpgSize = reader.result.slice(offset,offset+8);
               offset=offset+8;
               byteArray = new BigUint64Array(jpgSize);
