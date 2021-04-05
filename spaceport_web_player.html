@@ -175,8 +175,13 @@
                 if(createIndex==1){
                   if(flag==1 && numberContainer>10 && replay==1){
                     document.getElementById("play").style.display="none";
-                    if(index>0)
-                    scene.remove(meshes[index-1]);
+                    if(index>0){
+			scene.remove(meshes[index-1]);
+			delete meshes[index-1]
+			meshes[index-1].material.dispose();
+                        meshes[index-1].geometry.dispose();
+		    }
+                   
                     scene.add(meshes[index]);
                     index++;
                     //interval=timeStamps[index]-timeStamps[index-1];
