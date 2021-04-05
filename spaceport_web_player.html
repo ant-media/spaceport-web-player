@@ -177,9 +177,12 @@
                     document.getElementById("play").style.display="none";
                     if(index>0){
 			scene.remove(meshes[index-1]);
-			delete meshes[index-1]
+			    if(numberContainer>30){
+		        delete meshes[index-1]
 			meshes[index-1].material.dispose();
                         meshes[index-1].geometry.dispose();
+			    }
+			
 		    }
                    
                     scene.add(meshes[index]);
