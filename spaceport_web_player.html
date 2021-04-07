@@ -41,12 +41,11 @@
       </g>
   </svg>
 
-  <!-- <div id="player">
+  <div id="player">
 		<i class="fa fa-volume-down"></i>
 		<div id="volume"></div>
 		<i class="fa fa-volume-up"></i>
-	</div> -->
-
+	</div>
 
     <div id="myItem1"
     data-preset="energy"
@@ -175,8 +174,16 @@
                 if(createIndex==1){
                   if(flag==1 && numberContainer>10 && replay==1){
                     document.getElementById("play").style.display="none";
-                    if(index>0)
-                    scene.remove(meshes[index-1]);
+                    if(index>0){
+			scene.remove(meshes[index-1]);
+			    if(numberContainer>30){
+		        delete meshes[index-1]
+			meshes[index-1].material.dispose();
+                        meshes[index-1].geometry.dispose();
+			    }
+			
+		    }
+                   
                     scene.add(meshes[index]);
                     index++;
                     //interval=timeStamps[index]-timeStamps[index-1];
