@@ -24,7 +24,7 @@
       var source=loopCtx.createBufferSource();
       
       if(volumeSeq>allAudio.length-1){
-           volumeSeq=0;
+          return;
           }
           source.buffer = allAudio[volumeSeq];
          

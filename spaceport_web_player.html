@@ -8,6 +8,7 @@
    
     <script type="text/javascript" src="loading-bar.js"></script>
     <script type="text/javascript" src="main.js"></script>
+  
     
 		<style>
 			body {
@@ -64,7 +65,47 @@
 			Developed by
 			<a href="https://antmedia.io/" target="_blank" rel="noopener">Ant Media</a>.<br />
     </div>
+
+    <!-- <script>
+      addEventListener('load', () => {
+        // our worker code is likely already parsed and ready to execute!
+        const worker = new Worker('worker.js', { type: 'module' });
+      });
+    </script> -->
+
     <script type="module">
+       const meshes = [];
+       const testBuffer = [];
+
+const consumer = new Worker('../workers/consumer.js', {
+        type: 'module'
+      });
+
+      consumer.onmessage = function(e) {
+        console.log('Message received from worker');
+       // var parsedObj=JSON.parse(e.data)
+       var jsonLoader = new THREE.ObjectLoader();
+       var geometry = jsonLoader.parse(e.data);
+
+       geometry.rotation.z = Math.PI;
+    var scale = 4.5;
+    // **********************************************
+    geometry.scale.multiplyScalar(scale);
+    geometry.position.x = 0.06;     
+    geometry.position.y = 6;
+    geometry.position.z = -5; 
+    geometry.castShadow = true;
+    geometry.receiveShadow = true;
+
+
+        meshes.push(geometry)
+        console.log("mesh list size - | ", testBuffer.length)
+        
+      
+      }
+
+
+
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
     import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
     import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
@@ -77,7 +118,7 @@
       var textureLoader = new THREE.TextureLoader();
       const loadManager = new THREE.LoadingManager();
       const loader = new DRACOLoader();
-      const meshes = [];
+      //const meshes = [];
       const allTextures  = [];
       const allMaterials = [];
       const drcMeshes = [];
@@ -172,14 +213,14 @@
           intervalId = setInterval(function(){
              requestAnimationFrame( function render(t) {
                 if(createIndex==1){
-                  if(flag==1 && numberContainer>10 && replay==1){
+                  if(flag==1 && numberContainer>5 && replay==1){
                     document.getElementById("play").style.display="none";
                     if(index>0){
 			scene.remove(meshes[index-1]);
 			    if(numberContainer>30){
 		        delete meshes[index-1]
-			meshes[index-1].material.dispose();
-                        meshes[index-1].geometry.dispose();
+		//	meshes[index-1].material.dispose();
+                     //   meshes[index-1].geometry.dispose();
 			    }
 			
 		    }
@@ -208,6 +249,10 @@
           }
 
       window.onload = function() {
+      
+
+  
+       
         //get spaceport containers
         const loader = new GLTFLoader().setPath( 'models/glTF/' );
 						loader.load( 'scene.gltf', function ( gltf ) {
@@ -215,24 +260,52 @@
              gltf.scene.position.y = -2         
 							scene.add( gltf.scene );
 						} );
+
         function loadNextContainer(){ 
-        var url = "sample_videos/container_" + numberContainer; 
-        if(numberContainer>19){
+        var url = "sample_videos/container" + numberContainer; 
+        if(numberContainer>30){
+          console.log("return");
           return; 
         }    
-        if(numberContainer>10){
+        if(numberContainer>0){
           // createIndex = 1;
         }    
+
+      //   console.log("before worker");
+      //   var producer = new Worker('../workers/producer.js');
+      //   producer.postMessage("lauch");
+      //   producer.onmessage = function(e) {
+      //   console.log('Message received from producer', e.data);
+      //   testBuffer.push(e.data);
+      //   console.log(testBuffer[0]);
+      // }
+
+      
+    
+
+        //var consumer = new Worker('../workers/consumer.js');
+       // consumer.postMessage(0);
+      //   consumer.onmessage = function(e) {
+      //   console.log('Message received from consumer', e.data);
+      // }
+
+      console.log("thread block");
+       
+
+
+
         fetch(url)
         .then(response => response.blob())
         .then(data =>  {  
+            console.log("frame", numberContainer);
             var reader = new FileReader();
             reader.onload = function(e) {
-            var offset = 40;           
-            var frameCount = reader.result.slice(offset,offset+8);
-            var byteArray = new BigUint64Array(frameCount);
-            var frameNumber = Number(byteArray[0]);
-            offset=offset+8;
+            var offset = 40;
+
+            console.log('Message posted to worker');
+            consumer.postMessage(reader.result);           
+            
+            var frameNumber = 1;
             var i;
             for (i = 0; i < frameNumber ; i++) {
               var timeStamp = reader.result.slice(offset,offset+8);
@@ -241,17 +314,17 @@
               //console.log(myNumber);
               timeStamps.push(myNumber);
               offset=offset+8;
-              var framePosition = reader.result.slice(offset,offset+8);
-              var byteArray = new BigUint64Array(framePosition);
-              offset=offset+8; 
+              //var framePosition = reader.result.slice(offset,offset+8);
+              //var byteArray = new BigUint64Array(framePosition);
+              //offset=offset+8; 
             }
                var i;
             for (i = 0; i <frameNumber ; i++) {
-              if(bar<100){
-              bar++;
+              if(bar<90){
+              bar=bar+10;
              bar1.set(bar);
              }
-             if(bar==100){
+             if(bar==80){
               document.getElementById("myItem1").setAttribute("hidden","");
               document.getElementById("play").style.display = "block";
               bar1.set(0);
@@ -265,12 +338,13 @@
               var drcMesh = reader.result.slice(offset,offset+myNumber);
               drcMeshes.push(drcMesh);
               offset=offset+myNumber;
-              var mtl = reader.result.slice(offset,offset+8);
-              offset=offset+8;
+              console.log("debug 1.0");
+              //var mtl = reader.result.slice(offset,offset+8);
+              //offset=offset+8;
 
-              var byteArray = new BigUint64Array(mtl);       
-              var myNumber = Number(byteArray[0]);
-              offset = offset+myNumber;
+              //var byteArray = new BigUint64Array(mtl);       
+              //var myNumber = Number(byteArray[0]);
+              //offset = offset+myNumber;
 
               var jpgSize = reader.result.slice(offset,offset+8);
               offset=offset+8;
@@ -280,18 +354,51 @@
               var newTexture =  reader.result.slice(offset,offset+myNumber); 
               var textureView = new Uint8Array(newTexture);
               offset=offset+myNumber;
+
+              console.log("debug 1.1");
              
               var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
               var url = URL.createObjectURL(imageBlob);
               allTextures.push(url);         
               }
 
-              var audioData = reader.result.slice(offset,reader.result.byteLength);
-              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-              var sourceTemp = audioCtx.createBufferSource();
-              audioCtx.decodeAudioData(audioData, function(buffer) {
-              allAudio.push(buffer); 
-               });
+              console.log("debug 1.2");
+
+              if((numberContainer+1)%10==0){
+                console.log("audio decoder");
+                const sampleRate = 48000
+  const numChannels = 2 // mono or stereo
+  const isFloat = true  // integer or floating point
+                var audioData = reader.result.slice(offset,reader.result.byteLength);
+                
+                  // create WAV header
+                  const [type, format] = isFloat ? [Float32Array, 3] : [Uint8Array, 1] 
+  const wavHeader = new Uint8Array(buildWaveHeader({
+    numFrames: audioData.byteLength / type.BYTES_PER_ELEMENT,
+    bytesPerSample: type.BYTES_PER_ELEMENT,
+    sampleRate,
+    numChannels,
+    format
+  }))
+
+                  // create WAV file with header and downloaded PCM audio
+                const wavBytes = new Uint8Array(wavHeader.length + audioData.byteLength)
+                wavBytes.set(wavHeader, 0)
+                wavBytes.set(new Uint8Array(audioData), wavHeader.length)
+
+
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                var sourceTemp = audioCtx.createBufferSource();
+                 audioCtx.decodeAudioData(wavBytes.buffer, function(buffer) {
+                 allAudio.push(buffer); 
+                });
+              }
+            
+              
+             
+              // audioCtx.decodeAudioData(audioData, function(buffer) {
+              // allAudio.push(buffer); 
+              //  });
               
                const loader = new THREE.TextureLoader(loadManager);
                for(var foo=0;foo<frameNumber;foo++){
@@ -325,7 +432,7 @@
             geometry.castShadow = true;
             geometry.receiveShadow = true;
             // **********************************************
-            meshes.push(geometry);
+            //meshes.push(geometry);
             index++;
             loadNextFile();
             });
