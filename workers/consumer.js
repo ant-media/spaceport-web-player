@@ -16,7 +16,7 @@ self.addEventListener('message',(m)=>{
 
 
     var offset = 40;
-    console.log("consumer.js")//
+    console.log("consumer.js")
     console.log(m.data)
     var frameNumber = 1;
     var i;
@@ -104,24 +104,42 @@ self.addEventListener('message',(m)=>{
 
    // const texture = new THREE.TextureLoader().load('indir.jpg');
 
-   const loader = new THREE.ImageBitmapLoader();
-   loader.load( 'url', function ( imageBitmap ) {
-     console.log("Test!!!!!")
-  const texture = new THREE.CanvasTexture( imageBitmap );
-     const material = new THREE.MeshBasicMaterial( { map: texture } );
-     console.log(material);
-     
-} );
+// instantiate a loader
+const textureLoader = new THREE.ImageBitmapLoader();
 
-    const material = new THREE.MeshStandardMaterial( { color: 0x606060 } );
+
+// set options if needed
+
+
+// load a image resource
+textureLoader.load(
+	// resource URL
+	url,
+
+	// onLoad callback
+	function ( imageBitmap ) {
+		const texture = new THREE.CanvasTexture( imageBitmap );
+		const material = new THREE.MeshBasicMaterial( { map: texture } );
+    const newMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
     dracoLoader.decodeDracoFile(drcMesh,function(bufferGeometry){
     var geometry;
-    geometry = new THREE.Mesh(bufferGeometry, material);
-    console.log(geometry);
+    geometry = new THREE.Mesh(bufferGeometry, newMaterial);
     var serializedGeometry = geometry.toJSON();
     postMessage(serializedGeometry);
     
 });
+
+	},
+
+	// onProgress callback currently not supported
+	undefined,
+
+	// onError callback
+	function ( err ) {
+		console.log( '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' );
+	}
+);
+
 
 
 

@@ -13,10 +13,8 @@
   
   function playAudio(){
     
-     
       createIndex=1;
-      var loopCtx = new (window.AudioContext || window.webkitAudioContext)();
-      
+      var loopCtx = new (window.AudioContext || window.webkitAudioContext)(); 
       const gainNode = loopCtx.createGain(); // Create a gainNode reference.
       gainNode.gain.value = x  // 100% VOLUME RANGE OF VALUE IS 0-1
       gainNode.connect(loopCtx.destination); // Add context to gainNode
