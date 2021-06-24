@@ -11,6 +11,7 @@ var meshes = [];
 var controls;
 var PlayButton = false;
 var index = 0;
+var stage;
 const allAudio = [];
 
 function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
@@ -46,7 +47,9 @@ function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement
 	renderer.setSize( width, height, false );
 	testCanvas.addEventListener('resize', onWindowResize, false);
 
+
 	initLoaders();
+    initStage();
 	animate();
 	getVolumetricContainer(testCanvas);
 }
@@ -225,6 +228,20 @@ function createStage(){
 	scene.add( gltf.scene );
 	} );
 }
+
+// init stage
+function initStage(){
+	
+	const loader = new GLTFLoader().setPath( 'models/glTF/' );
+	loader.load( 'scene.gltf', function ( gltf ) {
+	stage=gltf;
+	stage.scene.scale.multiplyScalar(1);
+	stage.scene.position.y = -20
+	stage.scene.position.z = 10;
+	stage.scene.position.x = 0.6;
+   } );
+	
+}
 // not working yet
 function onWindowResize() {
 	camera.aspect = width / height;
@@ -237,7 +254,6 @@ export function playVideo(isPlay){
 	if(isPlay=="true"){
 		
 		PlayButton=true;
-
 
 	}
 
@@ -255,6 +271,15 @@ export function guiSettings(data){
 		group.remove(meshes[index-1]);
 		index = 0;
 		PlayButton=true;
+	}
+
+	if(data.stage=="Empty"){
+		console.log("scene remove");
+		scene.remove(stage.scene);
+
+	}else{
+		scene.add( stage.scene );
+	
 	}
 
 }

@@ -78,8 +78,8 @@
 	
 		<script type="module">
 			import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/libs/dat.gui.module.js';
-			import initJank from './jank.js';
-			import init from './scene.js';
+			//import initJank from './jank.js';
+			//import init from './scene.js';
 			createGUI();
 
 	
@@ -138,65 +138,67 @@
 			const data = {type: event.type, touches};
  
 			for (let i = 0; i < event.touches.length; ++i) {
-    const touch = event.touches[i];
-    touches.push({
-      pageX: touch.pageX,
-      pageY: touch.pageY,
-    });
-  }
-  sendFn(data);
-}
+    		
+				const touch = event.touches[i];
+				touches.push({
+      			pageX: touch.pageX,
+      			pageY: touch.pageY,
+			});
+		}
+		sendFn(data);
+	}
 
 			// The four arrow keys
 			const orbitKeys = {
-  '37': true,  // left
-  '38': true,  // up
-  '39': true,  // right
-  '40': true,  // down
-};
+				  '37': true,  // left
+				  '38': true,  // up
+				  '39': true,  // right
+				  '40': true,  // down
+				};
 
-			function filteredKeydownEventHandler(event, sendFn) {
-  const {keyCode} = event;
-  if (orbitKeys[keyCode]) {
-    event.preventDefault();
-    keydownEventHandler(event, sendFn);
-  }
-}
+			
+				function filteredKeydownEventHandler(event, sendFn) {
+					const {keyCode} = event;
+					if (orbitKeys[keyCode]) {
+						event.preventDefault();
+						 keydownEventHandler(event, sendFn);
+						}
+					}
 
 			let nextProxyId = 0;
 			class ElementProxy {
-				constructor(element, worker, eventHandlers) {
-										this.id = nextProxyId++;
-										this.worker = worker;
-										const sendEvent = (data) => {
-										this.worker.postMessage({
-											type: 'event',
-											id: this.id,
-											data,
-										});
-										};
-			    // register an id
-				worker.postMessage({
+			constructor(element, worker, eventHandlers) {
+				this.id = nextProxyId++;
+				this.worker = worker;
+				const sendEvent = (data) => {
+				this.worker.postMessage({
+					type: 'event',
+					id: this.id,
+					data,
+				});
+			};
+			// register an id
+			worker.postMessage({
 				type: 'makeProxy',
 				id: this.id,
-				});
-				sendSize();
-				for (const [eventName, handler] of Object.entries(eventHandlers)) {
+			});
+			sendSize();
+			for (const [eventName, handler] of Object.entries(eventHandlers)) {
 				element.addEventListener(eventName, function(event) {
 					handler(event, sendEvent);
 				});
 				}
 
-    function sendSize() {
-      const rect = element.getBoundingClientRect();
-      sendEvent({
-        type: 'size',
-        left: rect.left,
-        top: rect.top,
-        width: element.clientWidth,
-        height: element.clientHeight,
-      });
-    }
+   			 function sendSize() {
+      			const rect = element.getBoundingClientRect();
+     			 sendEvent({
+					   type: 'size',
+        			   left: rect.left,
+        			   top: rect.top,
+                       width: element.clientWidth,
+                       height: element.clientHeight,
+					});
+				}
 
     // really need to use ResizeObserver
     window.addEventListener('resize', sendSize);
@@ -204,19 +206,15 @@
 }
 
 			var worker;
-
-function main(){
-	//const canvas1 = document.getElementById( 'canvas1' );
-	document.getElementById("play").addEventListener("click", play);
-	const canvas2 = document.getElementById( 'canvas2' );
-	const width = canvas2.clientWidth;
-	const height = canvas2.clientHeight;
-	const pixelRatio = window.devicePixelRatio;
-	var progresBar=0;
-	//init( canvas1, width, height, pixelRatio, './' );
-	//initJank();
-
-
+			function main(){
+			//const canvas1 = document.getElementById( 'canvas1' );
+			document.getElementById("play").addEventListener("click", play);
+			const canvas2 = document.getElementById( 'canvas2' );
+			const width = canvas2.clientWidth;
+			const height = canvas2.clientHeight;
+			const pixelRatio = window.devicePixelRatio;
+			var progresBar=0;
+		
 			function progress(){
 				progresBar++;
 				bar1.set(progresBar);
@@ -230,19 +228,18 @@ function main(){
 				console.log("decode audio");
 			}
 
-	// offscreen
-	if ( 'transferControlToOffscreen' in canvas2 ) {
-		const offscreen = canvas2.transferControlToOffscreen();
-		 worker = new Worker( 'offscreen.js', { type: 'module' } );
-		 worker.onmessage = function(e) {
-		 console.log(e.data.type);
-		 if(e.data.type=="progress"){
-			progresBar++;
-				bar1.set(progresBar);
-				if(progresBar==100){
-					document.getElementById("myItem1").setAttribute("hidden","");
-					document.getElementById("play").style.display = "block";
-		}
+			// offscreen
+			if ( 'transferControlToOffscreen' in canvas2 ) {
+				const offscreen = canvas2.transferControlToOffscreen();
+				worker = new Worker( 'offscreen.js', { type: 'module' } );
+				worker.onmessage = function(e) {
+				if(e.data.type=="progress"){
+					progresBar++;
+						bar1.set(progresBar);
+						if(progresBar==100){
+							document.getElementById("myItem1").setAttribute("hidden","");
+							document.getElementById("play").style.display = "block";
+				}
 			
 		 }if(e.data.type=="audio"){
 
@@ -300,39 +297,71 @@ function play(){
 
 function createGUI(){
 	const api = { demo: 'Demo - I' };
+	const sceneApi = { scene: 'Empty' };
+	const volumeApi = { volume: 0.2};
 	var gui = new GUI();
 	const demos = [ 'Demo - I'];
 	const emotes = [ 'Play', 'Stop', 'Replay'];
+	const stages = ['Empty', 'Stage - I'];
 	const demosFolder = gui.addFolder( 'Demos' );
 	const emotesFolder = gui.addFolder( 'State')
-	const demoCtrl = demosFolder.add( api, 'demo' ).options( demos );
+	const stagesFolder = gui.addFolder( 'Scene')
+	const volumeFolder = gui.addFolder( 'Volume' );
 
+	volumeFolder.add( volumeApi, 'volume', 0.0, 1, 0.01 ).onChange( modifyTimeScale );
+	const demoCtrl = demosFolder.add( api, 'demo' ).options( demos );
 	demoCtrl.onChange( function () {
 
 		worker.postMessage({
 				type: 'gui',
 				sample: api.demo,
 				state : 'Play',
+				stage : sceneApi.scene,
 				});
 
 } );
 
-	function createEmoteCallback( name ) {
+    //api = { scene: 'Stage - I' };
+	
+	var sceneCtrl = stagesFolder.add( sceneApi, 'scene' ).options( stages );
+	sceneCtrl.onChange( function () {
+		console.log(sceneApi.scene);
+        worker.postMessage({
+		type: 'gui',
+		sample: api.demo,
+		state : 'Stop',
+		stage : sceneApi.scene
+		});
+
+} );
+
+function modifyTimeScale( speed ) {
+
+	setAudioLevel(speed);
+
+}
+
+function createEmoteCallback( name ) {
 		api[ name ] = function () {
+			if(name=="Stop"){
+				stopAudio();
+			}
 			worker.postMessage({
 				type: 'gui',
 				sample: api.demo,
 				state: name,
+				stage : sceneApi.scene
 				});
 		};
 	
 		emotesFolder.add( api, name );
-
 }
 
 for ( let i = 0; i < emotes.length; i ++ ) {
 createEmoteCallback( emotes[ i ] );
 }
+
+
 	
 	
 

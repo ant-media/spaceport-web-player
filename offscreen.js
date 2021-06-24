@@ -72,10 +72,6 @@ function start(data) {
   console.log("init")
   init( data.drawingSurface, data.width, data.height, data.pixelRatio, data.path, data.canvas, proxy );
 
-  // init({
-  //   canvas: data.canvas,
-  //   inputElement: proxy,
-  // });
 }
 
 function makeProxy(data) {

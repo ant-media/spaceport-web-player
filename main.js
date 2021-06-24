@@ -4,11 +4,16 @@
   const allAudio = [];
   var audioCtx;
   var volumeSeq=0;
-  var x=1
+  var x=0.2;
+  var stop= false;
 
   function setAudioLevel(myVolume){
   x = myVolume;
 
+  }
+
+  function stopAudio(){
+    stop=true;
   }
   
   function playAudio(){
@@ -34,6 +39,8 @@
                playAudio();
               }
           };
+
+
       
 
         function buildWaveHeader(opts) {
