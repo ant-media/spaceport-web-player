@@ -143,7 +143,7 @@ function getVolumetricContainer(testCanvas){
 			type: 'progress',
 			});
 		var audioData = data.slice(offset,data.byteLength);
-		console.log(audioData);
+		//console.log(audioData);
 		postMessage({
 			type: 'audio',
 			audata: audioData,
@@ -274,7 +274,7 @@ export function guiSettings(data){
 	}
 
 	if(data.stage=="Empty"){
-		console.log("scene remove");
+		//console.log("scene remove");
 		scene.remove(stage.scene);
 
 	}else{

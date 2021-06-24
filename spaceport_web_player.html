@@ -224,9 +224,7 @@
 		}
 			}
 
-			function audio(data){
-				console.log("decode audio");
-			}
+
 
 			// offscreen
 			if ( 'transferControlToOffscreen' in canvas2 ) {
@@ -325,7 +323,6 @@ function createGUI(){
 	
 	var sceneCtrl = stagesFolder.add( sceneApi, 'scene' ).options( stages );
 	sceneCtrl.onChange( function () {
-		console.log(sceneApi.scene);
         worker.postMessage({
 		type: 'gui',
 		sample: api.demo,
