@@ -4,19 +4,22 @@
   const allAudio = [];
   var audioCtx;
   var volumeSeq=0;
-  var x=1
+  var x=0.2;
+  var stop= false;
 
   function setAudioLevel(myVolume){
   x = myVolume;
 
   }
+
+  function stopAudio(){
+    stop=true;
+  }
   
   function playAudio(){
     
-     
       createIndex=1;
-      var loopCtx = new (window.AudioContext || window.webkitAudioContext)();
-      
+      var loopCtx = new (window.AudioContext || window.webkitAudioContext)(); 
       const gainNode = loopCtx.createGain(); // Create a gainNode reference.
       gainNode.gain.value = x  // 100% VOLUME RANGE OF VALUE IS 0-1
       gainNode.connect(loopCtx.destination); // Add context to gainNode
@@ -24,7 +27,7 @@
       var source=loopCtx.createBufferSource();
       
       if(volumeSeq>allAudio.length-1){
-           volumeSeq=0;
+          return;
           }
           source.buffer = allAudio[volumeSeq];
          
@@ -36,6 +39,8 @@
                playAudio();
               }
           };
+
+
       
 
         function buildWaveHeader(opts) {

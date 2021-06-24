@@ -1,18 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-		<title>  Spaceport Volumetric Web Player</title>
+	<head>
+		<title>Spaceport Volumetric Web Player</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="./main.css">
-   
-    <script type="text/javascript" src="loading-bar.js"></script>
-    <script type="text/javascript" src="main.js"></script>
-    
+		<link type="text/css" rel="stylesheet" href="./main.css">
 		<style>
 			body {
+				
 				color: #222;
 			}
+
 			a {
 				color: #2fa1d6;
 			}
@@ -23,355 +21,351 @@
 				margin-right: auto;
 				padding: 0 2em;
 			}
+
+			#message {
+				color: #ff0000;
+				display: none;
+			}
+
+			#message > a {
+				color: #ff0000;
+			}
+
+			#container {
+				position: absolute;
+				top: 0px;
+				bottom: 0px;
+				width: 100%;
+				height: 100%;
+			}
+
 		</style>
-  </head>
-
-  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-
-  <body>
-
-    <svg id="play"  viewBox="0 0 163 163" version="1.1" xmlns="http://www.w3.org/2000/svg" onclick="playAudio()" display="none"  xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"="0px">
-      <g fill="none">
-          <g  transform="translate(2.000000, 2.000000)" stroke-width="4">
-              <path d="M10,80 C10,118.107648 40.8923523,149 79,149 L79,149 C117.107648,149 148,118.107648 148,80 C148,41.8923523 117.107648,11 79,11" id="lineOne" stroke="#A5CB43"></path>
-              <path d="M105.9,74.4158594 L67.2,44.2158594 C63.5,41.3158594 58,43.9158594 58,48.7158594 L58,109.015859 C58,113.715859 63.4,116.415859 67.2,113.515859 L105.9,83.3158594 C108.8,81.1158594 108.8,76.6158594 105.9,74.4158594 L105.9,74.4158594 Z" id="triangle" stroke="#A3CD3A"></path>
-              <path d="M159,79.5 C159,35.5933624 123.406638,0 79.5,0 C35.5933624,0 0,35.5933624 0,79.5 C0,123.406638 35.5933624,159 79.5,159 L79.5,159" id="lineTwo" stroke="#A5CB43"></path>
-          </g>
-      </g>
-  </svg>
-
-  <div id="player">
-		<i class="fa fa-volume-down"></i>
-		<div id="volume"></div>
-		<i class="fa fa-volume-up"></i>
-	</div>
-
-    <div id="myItem1"
-    data-preset="energy"
-    style="width:200px;height:150px"
-    ></div>
-    <script>
-  var bar1 = new ldBar("#myItem1");
-  var bar2 = document.getElementById('myItem1').ldBar;
-</script>
-    
+	</head>
+	<body>
 		<div id="info">
-			<a href="https://spaceport.tv/" target="_blank" rel="noopener">Spaceport</a> Volumetric Web Video Player<br />
-			<p>
-				Spaceport, next-generation video technology, is an end-to-end Volumetric Video Capturing and Streaming solution. Compatible with mobile devices, browsers, and VR goggles.
-			</p>
-			Developed by
-			<a href="https://antmedia.io/" target="_blank" rel="noopener">Ant Media</a>.<br />
-    </div>
-    <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
-    import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/DRACOLoader.js';
-    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/loaders/GLTFLoader.js';
+			<a href="https://threejs.org" target="_blank" rel="noopener noreferrer">Ant Media</a> - Spaceport Web Player (<a href="https://spaceport.tv/" target="_blank" rel="noopener noreferrer">about</a>)<br/>
+			<p id="message">Your browser does not support OffscreenCanvas. Check the browser support <a href="https://caniuse.com/#feat=offscreencanvas" target="_blank" rel="noopener noreferrer">here</a></p>
+		</div>
 
-    var dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath( 'draco/' );
-    dracoLoader.setDecoderConfig( { type: 'js' } );
-      // Configure decoder and create loader.
-      var textureLoader = new THREE.TextureLoader();
-      const loadManager = new THREE.LoadingManager();
-      const loader = new DRACOLoader();
-      const meshes = [];
-      const allTextures  = [];
-      const allMaterials = [];
-      const drcMeshes = [];
-      const totalFrame = 200;
-      const timeStamps = [];
-      const audioTimeStamps = [];
-      var camera, cameraTarget, scene, renderer, controls;
-      var wavBytes = [];
-      var currentIndex = null; var flag = 0; var numberContainer = 0; var bar = 0; var replay = 1;
-      
-      function init() {
-        var container = document.createElement('div');
-        document.body.appendChild(container);
+		<div id="container">
+			<canvas id="canvas2" style="width: 100%; height: 100%"></canvas>
+		</div>
 
-        //camera
-        camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 250);
-        camera.position.set(0, 50, 200);
-        cameraTarget = new THREE.Vector3(0, 0, 0);
+		<svg id="play"  viewBox="0 0 163 163" version="1.1" xmlns="http://www.w3.org/2000/svg" display="none"  xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"="0px">
+			<g fill="none">
+				<g  transform="translate(2.000000, 2.000000)" stroke-width="4">
+					<path d="M10,80 C10,118.107648 40.8923523,149 79,149 L79,149 C117.107648,149 148,118.107648 148,80 C148,41.8923523 117.107648,11 79,11" id="lineOne" stroke="#A5CB43"></path>
+					<path d="M105.9,74.4158594 L67.2,44.2158594 C63.5,41.3158594 58,43.9158594 58,48.7158594 L58,109.015859 C58,113.715859 63.4,116.415859 67.2,113.515859 L105.9,83.3158594 C108.8,81.1158594 108.8,76.6158594 105.9,74.4158594 L105.9,74.4158594 Z" id="triangle" stroke="#A3CD3A"></path>
+					<path d="M159,79.5 C159,35.5933624 123.406638,0 79.5,0 C35.5933624,0 0,35.5933624 0,79.5 C0,123.406638 35.5933624,159 79.5,159 L79.5,159" id="lineTwo" stroke="#A5CB43"></path>
+				</g>
+			</g>
+		</svg>
 
-        //scene
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0xa0a0a0 );
-        scene.fog = new THREE.Fog( 0xa0a0a0, 0, 300);
+		
 
-        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-				hemiLight.position.set( 0, 20, 0 );
-				scene.add( hemiLight );
-
-
-        // Lights
-        scene.add(new THREE.HemisphereLight( 0xffffff, 0x444444));
-        //addShadowedLight(1, 1, 1, 0xffffff, 1.35);
-        //addShadowedLight(0.5, 1, -1, 0xffaa00, 1);
-
-        const dirLight = new THREE.DirectionalLight( 0xffffff );
-				dirLight.position.set( - 3, 10, - 10 );
-				dirLight.castShadow = true;
-				dirLight.shadow.camera.top = 10;
-				dirLight.shadow.camera.bottom = - 10;
-				dirLight.shadow.camera.left = - 10;
-				dirLight.shadow.camera.right = 10;
-				dirLight.shadow.camera.near = 0.1;
-				dirLight.shadow.camera.far = 40;
-				scene.add( dirLight );
-
-
-         const light = new THREE.PointLight( 0xffffff  );
-        
-         light.position.set( 50, 100, 50 );
-         light.power=3
-         scene.add( light );
-
-
-        // renderer
-        renderer = new THREE.WebGLRenderer({antialias: true});
-        renderer.setClearColor(scene.fog.color);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
-        window.addEventListener('resize', onWindowResize, false);
-        
-        // controls
-        controls = new OrbitControls( camera, renderer.domElement );
-        controls.enableDamping = true; 
-        controls.dampingFactor = 0.05;
-        controls.screenSpacePanning = false;
-        controls.minDistance = 2;
-        controls.maxDistance = 115;
-        //controls.maxPolarAngle = Math.PI/2;
-      }
-
-      function addShadowedLight(x, y, z, color, intensity) {
-        var directionalLight = new THREE.DirectionalLight(color, intensity);
-        directionalLight.position.set(x, y, z);
-        //scene.add(directionalLight);
-      }
-
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      function animate() {
-        var intervalId;
-        var interval = 80;
-        let clock = new THREE.Clock();
-        var index = 0;
-        startInterval(timeStamps[index-0]);
-
-        function startInterval(_interval){
-          intervalId = setInterval(function(){
-             requestAnimationFrame( function render(t) {
-                if(createIndex==1){
-                  if(flag==1 && numberContainer>10 && replay==1){
-                    document.getElementById("play").style.display="none";
-                    if(index>0){
-			scene.remove(meshes[index-1]);
-			    if(numberContainer>30){
-		        delete meshes[index-1]
-			meshes[index-1].material.dispose();
-                        meshes[index-1].geometry.dispose();
-			    }
-			
-		    }
-                   
-                    scene.add(meshes[index]);
-                    index++;
-                    //interval=timeStamps[index]-timeStamps[index-1];
-                    interval = 83.333;
-                    if(index>meshes.length){
-                      index=0;
-                        }     
-                       }
-                      }   
-            controls.update();
-            camera.lookAt(cameraTarget);
-            renderer.render(scene, camera);
-            });
-            clearInterval(intervalId);
-            startInterval(interval);
-
-        //end of the function
-      },_interval);
-
-        }
-
-          }
-
-      window.onload = function() {
-        //get spaceport containers
-        const loader = new GLTFLoader().setPath( 'models/glTF/' );
-						loader.load( 'scene.gltf', function ( gltf ) {
-             gltf.scene.scale.multiplyScalar(2/5);
-             gltf.scene.position.y = -2         
-							scene.add( gltf.scene );
-						} );
-        function loadNextContainer(){ 
-        var url = "sample_videos/container_" + numberContainer; 
-        if(numberContainer>19){
-          return; 
-        }    
-        if(numberContainer>10){
-          // createIndex = 1;
-        }    
-        fetch(url)
-        .then(response => response.blob())
-        .then(data =>  {  
-            var reader = new FileReader();
-            reader.onload = function(e) {
-            var offset = 40;           
-            var frameCount = reader.result.slice(offset,offset+8);
-            var byteArray = new BigUint64Array(frameCount);
-            var frameNumber = Number(byteArray[0]);
-            offset=offset+8;
-            var i;
-            for (i = 0; i < frameNumber ; i++) {
-              var timeStamp = reader.result.slice(offset,offset+8);
-              var byteArray = new BigUint64Array(timeStamp);
-              var myNumber = Number(byteArray[0]);
-              //console.log(myNumber);
-              timeStamps.push(myNumber);
-              offset=offset+8;
-              var framePosition = reader.result.slice(offset,offset+8);
-              var byteArray = new BigUint64Array(framePosition);
-              offset=offset+8; 
-            }
-               var i;
-            for (i = 0; i <frameNumber ; i++) {
-              if(bar<100){
-              bar++;
-             bar1.set(bar);
-             }
-             if(bar==100){
-              document.getElementById("myItem1").setAttribute("hidden","");
-              document.getElementById("play").style.display = "block";
-              bar1.set(0);
-             }       
-             
-              var dracoSize = reader.result.slice(offset,offset+8);
-              var byteArray = new BigUint64Array(dracoSize);
-              var myNumber = Number(byteArray[0]);
-              offset=offset+8;
-
-              var drcMesh = reader.result.slice(offset,offset+myNumber);
-              drcMeshes.push(drcMesh);
-              offset=offset+myNumber;
-              var mtl = reader.result.slice(offset,offset+8);
-              offset=offset+8;
-
-              var byteArray = new BigUint64Array(mtl);       
-              var myNumber = Number(byteArray[0]);
-              offset = offset+myNumber;
-
-              var jpgSize = reader.result.slice(offset,offset+8);
-              offset=offset+8;
-              var jpgSizeView = new Float64Array(jpgSize);
-              var byteArray = new BigUint64Array(jpgSize);
-              var myNumber = Number(byteArray[0]);
-              var newTexture =  reader.result.slice(offset,offset+myNumber); 
-              var textureView = new Uint8Array(newTexture);
-              offset=offset+myNumber;
-             
-              var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
-              var url = URL.createObjectURL(imageBlob);
-              allTextures.push(url);         
-              }
-
-              var audioData = reader.result.slice(offset,reader.result.byteLength);
-              audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-              var sourceTemp = audioCtx.createBufferSource();
-              audioCtx.decodeAudioData(audioData, function(buffer) {
-              allAudio.push(buffer); 
-               });
-              
-               const loader = new THREE.TextureLoader(loadManager);
-               for(var foo=0;foo<frameNumber;foo++){
-                 var material = new THREE.MeshBasicMaterial({map: loader.load(allTextures[foo])});
-                 allMaterials.push(material);   
-                 }
-                 loadManager.onLoad = () => {
-                   var index = 0;
-                   
-                   function loadNextFile(){
-                     if(index>drcMeshes.length-1){
-                      flag=1;
-                      allMaterials.length=0;
-                      allTextures.length = 0;
-                      drcMeshes.length = 0;
-                      numberContainer++;
-                      
-                     loadNextContainer();
-                      return;
-                     } 
-                     dracoLoader.decodeDracoFile(drcMeshes[index],function(bufferGeometry){
-                     var geometry;
-                     geometry = new THREE.Mesh(bufferGeometry, allMaterials[index]);
-                     geometry.rotation.z = Math.PI;
-                     var scale = 4.5;
-            // **********************************************
-            geometry.scale.multiplyScalar(scale);
-            geometry.position.x = 0.06;     
-            geometry.position.y = 6;
-            geometry.position.z = -5; 
-            geometry.castShadow = true;
-            geometry.receiveShadow = true;
-            // **********************************************
-            meshes.push(geometry);
-            index++;
-            loadNextFile();
-            });
-        }
-        loadNextFile();
-        };
-          }
-             reader.readAsArrayBuffer(data);
-         })
-        .catch((error) => {
-           console.error('Error:', error);
-           });   
-            }
-       init();   
-       loadNextContainer();
-       animate();
-
-       
-      }
-  
-  
-  
- 
-    $("#volume").slider({
-  	min: 0,
-  	max: 100,
-  	value: 25,
-		range: "min",
-  	slide: function(event, ui) {
-    	setVolume(ui.value / 100);
-  	}
-	});
 	
-	var myMedia = document.createElement('audio');
-	$('#player').append(myMedia);
-	myMedia.id = "myMedia";
+		<div id="myItem1"></div>
+		<script type="text/javascript" src="loading-bar.js"></script>
+<script>
+  /* construct manually */
+  var bar1 = new ldBar("#myItem1");
+  /* ldBar stored in the element */
+ // var bar2 = document.getElementById('myItem1').ldBar;
+  bar1.set(0);
+</script>
 
+<script type="text/javascript" src="main.js"></script>
+	
+		<script type="module">
+			import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/libs/dat.gui.module.js';
+			//import initJank from './jank.js';
+			//import init from './scene.js';
+			createGUI();
 
-	var volumeLevel;
-	function setVolume(myVolume) {
-    var myMedia = document.getElementById('myMedia');
-    volumeLevel = myVolume;
-    //console.log(myVolume);
-    setAudioLevel(myVolume);
+	
+
+			const mouseEventHandler = makeSendPropertiesHandler([
+				'ctrlKey',
+				'metaKey',
+				'shiftKey',
+				'button',
+				'pointerType',
+				'clientX',
+				'clientY',
+				'pageX',
+				'pageY',
+			]);
+
+			const wheelEventHandlerImpl = makeSendPropertiesHandler([
+				'deltaX',
+				'deltaY',
+			]);
+
+			const keydownEventHandler = makeSendPropertiesHandler([
+				'ctrlKey',
+				'metaKey',
+				'shiftKey',
+				'keyCode',
+			]);
+
+			function wheelEventHandler(event, sendFn) {
+				event.preventDefault();
+				wheelEventHandlerImpl(event, sendFn);
+			}
+
+			function preventDefaultHandler(event) {
+				 event.preventDefault();
+				}
+
+			function copyProperties(src, properties, dst) {
+					for (const name of properties) {
+						dst[name] = src[name];
+					}
+				}
+
+			function makeSendPropertiesHandler(properties) {
+					return function sendProperties(event, sendFn) {
+						const data = {type: event.type};
+						copyProperties(event, properties, data);
+						sendFn(data);
+					};
+				}
+
+			function touchEventHandler(event, sendFn) {
+ 
+			const touches = [];
+			
+			const data = {type: event.type, touches};
+ 
+			for (let i = 0; i < event.touches.length; ++i) {
+    		
+				const touch = event.touches[i];
+				touches.push({
+      			pageX: touch.pageX,
+      			pageY: touch.pageY,
+			});
+		}
+		sendFn(data);
 	}
 
-  </script>
+			// The four arrow keys
+			const orbitKeys = {
+				  '37': true,  // left
+				  '38': true,  // up
+				  '39': true,  // right
+				  '40': true,  // down
+				};
 
+			
+				function filteredKeydownEventHandler(event, sendFn) {
+					const {keyCode} = event;
+					if (orbitKeys[keyCode]) {
+						event.preventDefault();
+						 keydownEventHandler(event, sendFn);
+						}
+					}
+
+			let nextProxyId = 0;
+			class ElementProxy {
+			constructor(element, worker, eventHandlers) {
+				this.id = nextProxyId++;
+				this.worker = worker;
+				const sendEvent = (data) => {
+				this.worker.postMessage({
+					type: 'event',
+					id: this.id,
+					data,
+				});
+			};
+			// register an id
+			worker.postMessage({
+				type: 'makeProxy',
+				id: this.id,
+			});
+			sendSize();
+			for (const [eventName, handler] of Object.entries(eventHandlers)) {
+				element.addEventListener(eventName, function(event) {
+					handler(event, sendEvent);
+				});
+				}
+
+   			 function sendSize() {
+      			const rect = element.getBoundingClientRect();
+     			 sendEvent({
+					   type: 'size',
+        			   left: rect.left,
+        			   top: rect.top,
+                       width: element.clientWidth,
+                       height: element.clientHeight,
+					});
+				}
+
+    // really need to use ResizeObserver
+    window.addEventListener('resize', sendSize);
+  }
+}
+
+			var worker;
+			function main(){
+			//const canvas1 = document.getElementById( 'canvas1' );
+			document.getElementById("play").addEventListener("click", play);
+			const canvas2 = document.getElementById( 'canvas2' );
+			const width = canvas2.clientWidth;
+			const height = canvas2.clientHeight;
+			const pixelRatio = window.devicePixelRatio;
+			var progresBar=0;
+		
+			function progress(){
+				progresBar++;
+				bar1.set(progresBar);
+				if(progresBar==100){
+					document.getElementById("myItem1").setAttribute("hidden","");
+					document.getElementById("play").style.display = "block";
+		}
+			}
+
+
+
+			// offscreen
+			if ( 'transferControlToOffscreen' in canvas2 ) {
+				const offscreen = canvas2.transferControlToOffscreen();
+				worker = new Worker( 'offscreen.js', { type: 'module' } );
+				worker.onmessage = function(e) {
+				if(e.data.type=="progress"){
+					progresBar++;
+						bar1.set(progresBar);
+						if(progresBar==100){
+							document.getElementById("myItem1").setAttribute("hidden","");
+							document.getElementById("play").style.display = "block";
+				}
+			
+		 }if(e.data.type=="audio"){
+
+			var audioData = e.data.audata;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var sourceTemp = audioCtx.createBufferSource();
+            audioCtx.decodeAudioData(audioData, function(buffer) {
+            allAudio.push(buffer); 
+             });
+		 }
+
+        } 
+
+		 const eventHandlers = {
+			contextmenu: preventDefaultHandler,
+    		mousedown: mouseEventHandler,
+			mousemove: mouseEventHandler,
+			mouseup: mouseEventHandler,
+			pointerdown: mouseEventHandler,
+			pointermove: mouseEventHandler,
+			pointerup: mouseEventHandler,
+			touchstart: touchEventHandler,
+			touchmove: touchEventHandler,
+			touchend: touchEventHandler,
+			wheel: wheelEventHandler,
+			keydown: filteredKeydownEventHandler,
+		 };
+
+	const proxy = new ElementProxy(canvas2, worker, eventHandlers);
+
+	worker.postMessage( {
+		drawingSurface: offscreen,
+		width: canvas2.clientWidth,
+		height: canvas2.clientHeight,
+		pixelRatio: window.devicePixelRatio,
+		path: '../../',
+		type: 'start',
+		canvas: offscreen,
+		canvasId: proxy.id,
+		}, [ offscreen ] );
+
+	} else {
+		document.getElementById( 'message' ).style.display = 'block';
+	}
+}
+
+function play(){
+	document.getElementById("play").style.display="none";
+	playAudio();
+	worker.postMessage({
+				type: 'ui',
+				play: `true`,
+				});
+}
+
+function createGUI(){
+	const api = { demo: 'Demo - I' };
+	const sceneApi = { scene: 'Empty' };
+	const volumeApi = { volume: 0.2};
+	var gui = new GUI();
+	const demos = [ 'Demo - I'];
+	const emotes = [ 'Play', 'Stop', 'Replay'];
+	const stages = ['Empty', 'Stage - I'];
+	const demosFolder = gui.addFolder( 'Demos' );
+	const emotesFolder = gui.addFolder( 'State')
+	const stagesFolder = gui.addFolder( 'Scene')
+	const volumeFolder = gui.addFolder( 'Volume' );
+
+	volumeFolder.add( volumeApi, 'volume', 0.0, 1, 0.01 ).onChange( modifyTimeScale );
+	const demoCtrl = demosFolder.add( api, 'demo' ).options( demos );
+	demoCtrl.onChange( function () {
+
+		worker.postMessage({
+				type: 'gui',
+				sample: api.demo,
+				state : 'Play',
+				stage : sceneApi.scene,
+				});
+
+} );
+
+    //api = { scene: 'Stage - I' };
+	
+	var sceneCtrl = stagesFolder.add( sceneApi, 'scene' ).options( stages );
+	sceneCtrl.onChange( function () {
+        worker.postMessage({
+		type: 'gui',
+		sample: api.demo,
+		state : 'Stop',
+		stage : sceneApi.scene
+		});
+
+} );
+
+function modifyTimeScale( speed ) {
+
+	setAudioLevel(speed);
+
+}
+
+function createEmoteCallback( name ) {
+		api[ name ] = function () {
+			if(name=="Stop"){
+				stopAudio();
+			}
+			worker.postMessage({
+				type: 'gui',
+				sample: api.demo,
+				state: name,
+				stage : sceneApi.scene
+				});
+		};
+	
+		emotesFolder.add( api, name );
+}
+
+for ( let i = 0; i < emotes.length; i ++ ) {
+createEmoteCallback( emotes[ i ] );
+}
+
+
+	
+	
+
+}
+
+			main();
+
+		</script>
+	</body>
 </html>
