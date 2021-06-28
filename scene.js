@@ -58,7 +58,7 @@ function initLoaders(){
 	textureLoader = new THREE.ImageBitmapLoader();
 	textureLoader.setOptions( { imageOrientation: 'flipY' } );
 	dracoLoader = new DRACOLoader();
-	dracoLoader.setDecoderPath( '../draco/' );
+	dracoLoader.setDecoderPath( 'draco/' );
 	dracoLoader.setDecoderConfig( { type: 'js' } );
 }
 // display meshes
