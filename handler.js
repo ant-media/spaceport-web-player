@@ -113,54 +113,63 @@ class ElementProxy {
     }
 }
 
-
-export function main(){
-    //maybe i can define the worker inside of the main
-    //dunno, will try.
-    //const canvas1 = document.getElementById( 'canvas1' );
-    var worker;
-    
-    const offscreencanvas = document.getElementById( 'offscreencanvas' );
-    const width = offscreencanvas.clientWidth;
-    const height = offscreencanvas.clientHeight;
-    const pixelRatio = window.devicePixelRatio;
-    var progresBar=0;
-
-    function progress(){
-        progresBar++;
-        bar1.set(progresBar);
-        if(progresBar==100){
-            progresBar.setAttribute("hidden","");
-           // document.getElementById("play").style.display = "block";
-}
+function progress(){
+    progresBar++;
+    bar1.set(progresBar);
+    if(progresBar==100){
+        progresBar.setAttribute("hidden","");
+       // document.getElementById("play").style.display = "block";
     }
+}
 
-    // offscreen
-    if ( 'transferControlToOffscreen' in offscreencanvas ) {
-        const offscreen = offscreencanvas.transferControlToOffscreen();
-        worker = new Worker( 'offscreen.js', { type: 'module' } );
-        //looks bad, maybe i can create a class to handle some global variables
-        UI(worker);
-        worker.onmessage = function(e) {
-        if(e.data.type=="progress"){
-            progresBar++;
-                bar1.set(progresBar);
-                if(progresBar==100){
-                    document.getElementById("progressBar").setAttribute("hidden","");
-                 //   document.getElementById("play").style.display = "block";
-        }
-    
- }if(e.data.type=="audio"){
+//to handle received message coming from worker
+//increase proggres bar or decode audio
+const handlers = {
+    incProgress,
+    decodeAudio,
+  };
 
-    var audioData = e.data.audata;
+function incProgress(){
+    progresBar++;
+    bar1.set(progresBar);
+    if(progresBar==100){
+        progresBarUI.setAttribute("hidden","");
+    }}
+
+// not possible to decode audio on workers side.
+
+function decodeAudio(data){
+    var audioData = data.audata;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     var sourceTemp = audioCtx.createBufferSource();
     audioCtx.decodeAudioData(audioData, function(buffer) {
     allAudio.push(buffer); 
      });
- }
+}
 
-} 
+var progresBar=0;
+export function main(){
+    var worker;
+    const offscreencanvas = document.getElementById( 'offscreencanvas' );
+    const progresBarUI =  document.getElementById("progressBar");
+    const width = offscreencanvas.clientWidth;
+    const height = offscreencanvas.clientHeight;
+    const pixelRatio = window.devicePixelRatio;
+
+    // offscreen canvas
+    if ( 'transferControlToOffscreen' in offscreencanvas ) {
+        const offscreen = offscreencanvas.transferControlToOffscreen();
+        worker = new Worker( 'offscreen.js', { type: 'module' } );
+        //looks bad, maybe i can create a class to handle some global variables.
+        UI(worker);
+        worker.onmessage = function ( message ) {
+            var data = message.data;
+            var messageType = handlers[data.type]
+            if(!messageType){
+                console.log("message handle error!");
+            }
+            messageType(data)
+        };
 
  const eventHandlers = {
     contextmenu: preventDefaultHandler,
@@ -198,7 +207,7 @@ document.getElementById( 'message' ).style.display = 'block';
 
 
 function play(){
-	//document.getElementById("play").style.display="none";
+	
 	playAudio();
 	worker.postMessage({
 				type: 'ui',

@@ -142,12 +142,12 @@ function getVolumetricContainer(testCanvas){
 		var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
 		var url = URL.createObjectURL(imageBlob);
 		postMessage({
-			type: 'progress',
+			type: 'incProgress',
 			});
 		var audioData = data.slice(offset,data.byteLength);
 		//console.log(audioData);
 		postMessage({
-			type: 'audio',
+			type: 'decodeAudio',
 			audata: audioData,
 			});
 		bitmapTextureLoader(url,drcMesh);	

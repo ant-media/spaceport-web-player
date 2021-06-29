@@ -101,15 +101,12 @@ const handlers = {
 };
 
 self.onmessage = function ( message ) {
-  
-	var data = message.data;
-  const fn = handlers[data.type]
-  if(!fn){
-    //console.log("message handle error!");
-  }else{
-    //console.log(data.type)
-  }
-  fn(data)
-
-
+    var data = message.data;
+    const fn = handlers[data.type]
+    if(!fn){
+      //console.log("message handle error!");
+    }else{
+      //console.log(data.type)
+    }
+    fn(data)
 };
