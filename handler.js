@@ -113,15 +113,14 @@ class ElementProxy {
     }
 }
 
-function progress(){
-    progresBar++;
-    bar1.set(progresBar);
-    if(progresBar==100){
-        progresBar.setAttribute("hidden","");
-       // document.getElementById("play").style.display = "block";
-    }
+
+export function main(){
+    const webPlayer = new PlayerManager();
 }
 
+class PlayerManager{
+    constructor( ) {
+        
 //to handle received message coming from worker
 //increase proggres bar or decode audio
 const handlers = {
@@ -129,15 +128,16 @@ const handlers = {
     decodeAudio,
   };
 
+//to inc progress bar
 function incProgress(){
     progresBar++;
     bar1.set(progresBar);
     if(progresBar==100){
         progresBarUI.setAttribute("hidden","");
-    }}
+    }
+}
 
 // not possible to decode audio on workers side.
-
 function decodeAudio(data){
     var audioData = data.audata;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -147,61 +147,60 @@ function decodeAudio(data){
      });
 }
 
-var progresBar=0;
-export function main(){
-    var worker;
-    const offscreencanvas = document.getElementById( 'offscreencanvas' );
-    const progresBarUI =  document.getElementById("progressBar");
-    const width = offscreencanvas.clientWidth;
-    const height = offscreencanvas.clientHeight;
-    const pixelRatio = window.devicePixelRatio;
+        var progresBar = 0;
+        const progresBarUI =  document.getElementById("progressBar");
+        const offscreencanvas = document.getElementById( 'offscreencanvas' );
+        const width = offscreencanvas.clientWidth;
+        const height = offscreencanvas.clientHeight;
+        const pixelRatio = window.devicePixelRatio;
+        // offscreen canvas
+        if ( 'transferControlToOffscreen' in offscreencanvas ) {
+            const offscreen = offscreencanvas.transferControlToOffscreen();
+            const worker = new Worker( 'offscreen.js', { type: 'module' } );
+            //looks bad, maybe i can create a class to handle some global variables.
+            UI(worker);
+            worker.onmessage = function ( message ) {
+                var data = message.data;
+                var messageType = handlers[data.type];
+                if(!messageType){
+                    console.log("message handle error!!!!");
+                }
+                messageType(data)
+            };
+    
+        const eventHandlers = {
+        contextmenu: preventDefaultHandler,
+        mousedown: mouseEventHandler,
+        mousemove: mouseEventHandler,
+        mouseup: mouseEventHandler,
+        pointerdown: mouseEventHandler,
+        pointermove: mouseEventHandler,
+        pointerup: mouseEventHandler,
+        touchstart: touchEventHandler,
+        touchmove: touchEventHandler,
+        touchend: touchEventHandler,
+        wheel: wheelEventHandler,
+        keydown: filteredKeydownEventHandler,
+     };
+    
+    const proxy = new ElementProxy(offscreencanvas, worker, eventHandlers);
+    
+    worker.postMessage( {
+        drawingSurface: offscreen,
+        width: offscreencanvas.clientWidth,
+        height: offscreencanvas.clientHeight,
+        pixelRatio: window.devicePixelRatio,
+        path: '../../',
+        type: 'start',
+        canvas: offscreen,
+        canvasId: proxy.id,
+    }, [ offscreen ] );
+    
+    } else {
+        document.getElementById( 'message' ).style.display = 'block';
+    }
+    }
 
-    // offscreen canvas
-    if ( 'transferControlToOffscreen' in offscreencanvas ) {
-        const offscreen = offscreencanvas.transferControlToOffscreen();
-        worker = new Worker( 'offscreen.js', { type: 'module' } );
-        //looks bad, maybe i can create a class to handle some global variables.
-        UI(worker);
-        worker.onmessage = function ( message ) {
-            var data = message.data;
-            var messageType = handlers[data.type]
-            if(!messageType){
-                console.log("message handle error!");
-            }
-            messageType(data)
-        };
-
- const eventHandlers = {
-    contextmenu: preventDefaultHandler,
-    mousedown: mouseEventHandler,
-    mousemove: mouseEventHandler,
-    mouseup: mouseEventHandler,
-    pointerdown: mouseEventHandler,
-    pointermove: mouseEventHandler,
-    pointerup: mouseEventHandler,
-    touchstart: touchEventHandler,
-    touchmove: touchEventHandler,
-    touchend: touchEventHandler,
-    wheel: wheelEventHandler,
-    keydown: filteredKeydownEventHandler,
- };
-
-const proxy = new ElementProxy(offscreencanvas, worker, eventHandlers);
-
-worker.postMessage( {
-drawingSurface: offscreen,
-width: offscreencanvas.clientWidth,
-height: offscreencanvas.clientHeight,
-pixelRatio: window.devicePixelRatio,
-path: '../../',
-type: 'start',
-canvas: offscreen,
-canvasId: proxy.id,
-}, [ offscreen ] );
-
-} else {
-document.getElementById( 'message' ).style.display = 'block';
-}
 }
 
 

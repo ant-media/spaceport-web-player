@@ -94,8 +94,7 @@ function animate() {
 
 	},_interval);
   
-	  }
-
+    }
 }
 // fetch next container to decode
 function getVolumetricContainer(testCanvas){
@@ -230,11 +229,9 @@ function createStage(){
 	scene.add( gltf.scene );
 	} );
 }
-
 // init stage
 function initStage(){
-	
-	const loader = new GLTFLoader().setPath( 'models/glTF/' );
+		const loader = new GLTFLoader().setPath( 'models/glTF/' );
 	loader.load( 'scene.gltf', function ( gltf ) {
 	stage=gltf;
 	stage.scene.scale.multiplyScalar(1);
@@ -244,12 +241,13 @@ function initStage(){
    } );
 	
 }
+
 // not working yet
 function onWindowResize() {
 	camera.aspect = width / height;
 	camera.updateProjectionMatrix();
 	renderer.setSize(width, height);
-  }
+}
 
 export function playVideo(isPlay){
 	

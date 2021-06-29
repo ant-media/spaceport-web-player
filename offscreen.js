@@ -65,11 +65,9 @@ const proxyManager = new ProxyManager();
 
 function start(data) {
   const proxy = proxyManager.getProxy(data.canvasId);
-  //console.log("data canvas id || ",data.canvasId)
   proxy.ownerDocument = proxy; // HACK!
   self.document = {};  // HACK!
-  //console.log("data.canvas ==== ", data.canvas);
-  //console.log("init")
+  //data.canvas look unnecessary
   init( data.drawingSurface, data.width, data.height, data.pixelRatio, data.path, data.canvas, proxy );
 
 }
