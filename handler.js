@@ -115,103 +115,95 @@ class ElementProxy {
 
 
 export function main(){
+    var progresBar = 0;
+    const progresBarUI =  document.getElementById("progressBar");
     const webPlayer = new PlayerManager();
+     //to handle received message coming from worker
+     //increase proggres bar or decode audio
+     const handlers = {
+        incProgress,
+        decodeAudio,
+    };
+    
+    //to inc progress bar
+    function incProgress(){
+        progresBar++;
+        bar1.set(progresBar);
+        if(progresBar==100){
+             progresBarUI.setAttribute("hidden","");
+             }
+        }
+        
+    // not possible to decode audio on workers side.
+    function decodeAudio(data){
+        var audioData = data.audata;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var sourceTemp = audioCtx.createBufferSource();
+        audioCtx.decodeAudioData(audioData, function(buffer) {
+            allAudio.push(buffer); 
+        });
+    }
+    
+    webPlayer.getWorker().onmessage = function ( message ) {
+        var data = message.data;
+        var messageType = handlers[data.type];
+        if(!messageType){
+            console.log("message handle error!");
+        }
+        messageType(data)
+    };
+
+    UI( webPlayer.getWorker());
 }
 
 class PlayerManager{
     constructor( ) {
-        
-//to handle received message coming from worker
-//increase proggres bar or decode audio
-const handlers = {
-    incProgress,
-    decodeAudio,
-  };
-
-//to inc progress bar
-function incProgress(){
-    progresBar++;
-    bar1.set(progresBar);
-    if(progresBar==100){
-        progresBarUI.setAttribute("hidden","");
-    }
-}
-
-// not possible to decode audio on workers side.
-function decodeAudio(data){
-    var audioData = data.audata;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    var sourceTemp = audioCtx.createBufferSource();
-    audioCtx.decodeAudioData(audioData, function(buffer) {
-    allAudio.push(buffer); 
-     });
-}
-
-        var progresBar = 0;
-        const progresBarUI =  document.getElementById("progressBar");
-        const offscreencanvas = document.getElementById( 'offscreencanvas' );
-        const width = offscreencanvas.clientWidth;
-        const height = offscreencanvas.clientHeight;
-        const pixelRatio = window.devicePixelRatio;
+        this.errorMessage = document.getElementById( 'message' );
+        this.offscreencanvas = document.getElementById( 'offscreencanvas' );
+        this. width = offscreencanvas.clientWidth;
+        this.height = offscreencanvas.clientHeight;
+        this.pixelRatio = window.devicePixelRatio;
         // offscreen canvas
         if ( 'transferControlToOffscreen' in offscreencanvas ) {
-            const offscreen = offscreencanvas.transferControlToOffscreen();
-            const worker = new Worker( 'offscreen.js', { type: 'module' } );
+            this.offscreen = offscreencanvas.transferControlToOffscreen();
+            this.worker = new Worker( 'offscreen.js', { type: 'module' } );
             //looks bad, maybe i can create a class to handle some global variables.
-            UI(worker);
-            worker.onmessage = function ( message ) {
-                var data = message.data;
-                var messageType = handlers[data.type];
-                if(!messageType){
-                    console.log("message handle error!!!!");
-                }
-                messageType(data)
-            };
-    
-        const eventHandlers = {
-        contextmenu: preventDefaultHandler,
-        mousedown: mouseEventHandler,
-        mousemove: mouseEventHandler,
-        mouseup: mouseEventHandler,
-        pointerdown: mouseEventHandler,
-        pointermove: mouseEventHandler,
-        pointerup: mouseEventHandler,
-        touchstart: touchEventHandler,
-        touchmove: touchEventHandler,
-        touchend: touchEventHandler,
-        wheel: wheelEventHandler,
-        keydown: filteredKeydownEventHandler,
-     };
-    
-    const proxy = new ElementProxy(offscreencanvas, worker, eventHandlers);
-    
-    worker.postMessage( {
-        drawingSurface: offscreen,
-        width: offscreencanvas.clientWidth,
-        height: offscreencanvas.clientHeight,
+            this.eventHandlers = {
+            contextmenu: preventDefaultHandler,
+            mousedown: mouseEventHandler,
+            mousemove: mouseEventHandler,
+            mouseup: mouseEventHandler,
+            pointerdown: mouseEventHandler,
+            pointermove: mouseEventHandler,
+            pointerup: mouseEventHandler,
+            touchstart: touchEventHandler,
+            touchmove: touchEventHandler,
+            touchend: touchEventHandler,
+            wheel: wheelEventHandler,
+            keydown: filteredKeydownEventHandler,
+        };
+        
+        this.proxy = new ElementProxy(this.offscreencanvas, this.worker, this.eventHandlers);
+        this.worker.postMessage( {
+        thisdrawingSurface: this.offscreen,
+        width: this.offscreencanvas.clientWidth,
+        height: this.offscreencanvas.clientHeight,
         pixelRatio: window.devicePixelRatio,
         path: '../../',
         type: 'start',
-        canvas: offscreen,
-        canvasId: proxy.id,
-    }, [ offscreen ] );
-    
-    } else {
-        document.getElementById( 'message' ).style.display = 'block';
+        canvas: this.offscreen,
+        canvasId: this.proxy.id,
+    }, [ this.offscreen ] );
+} else {
+        errorMessage.style.display = 'block';
     }
     }
 
-}
+    getWorker(){
+        return this.worker;
 
+    }
 
-
-function play(){
-	
-	playAudio();
-	worker.postMessage({
-				type: 'ui',
-				play: `true`,
-				});
 }
 
 
