@@ -101,9 +101,11 @@ function animate() {
 function getVolumetricContainer(testCanvas){
 	//var url = "sample_videos/container" + numberContainer; 
 	if(iterContaier==numContainer){
+		PlayButton=true;
 		return;
 	}
 	var url=  "sample_videos/demo2/container_" + iterContaier;
+	console.log("decoded mesh", url)
 	//console.log(url)
 	iterContaier++;
 	fetch(url)
