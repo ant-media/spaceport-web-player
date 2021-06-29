@@ -1,4 +1,5 @@
-import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/libs/dat.gui.module.js';
+
+import { UI } from './gui.js';
 
 const mouseEventHandler = makeSendPropertiesHandler([
     'ctrlKey',
@@ -113,10 +114,11 @@ class ElementProxy {
 }
 
 
-export function main(worker){
+export function main(){
     //maybe i can define the worker inside of the main
     //dunno, will try.
     //const canvas1 = document.getElementById( 'canvas1' );
+    var worker;
     
     const offscreencanvas = document.getElementById( 'offscreencanvas' );
     const width = offscreencanvas.clientWidth;
@@ -133,12 +135,12 @@ export function main(worker){
 }
     }
 
-
-
     // offscreen
     if ( 'transferControlToOffscreen' in offscreencanvas ) {
         const offscreen = offscreencanvas.transferControlToOffscreen();
         worker = new Worker( 'offscreen.js', { type: 'module' } );
+        //looks bad, maybe i can create a class to handle some global variables
+        UI(worker);
         worker.onmessage = function(e) {
         if(e.data.type=="progress"){
             progresBar++;
@@ -205,77 +207,6 @@ function play(){
 }
 
 
-
-export function createGUI(){
-	const api = { demo: 'Demo - I' };
-	const sceneApi = { scene: 'Empty' };
-	const volumeApi = { volume: 0.2};
-	var gui = new GUI();
-	const demos = [ 'Demo - I'];
-	const emotes = [ 'Play', 'Stop', 'Replay'];
-	const stages = ['Empty', 'Stage - I'];
-	const demosFolder = gui.addFolder( 'Demos' );
-	const emotesFolder = gui.addFolder( 'State')
-	const stagesFolder = gui.addFolder( 'Scene')
-	const volumeFolder = gui.addFolder( 'Volume' );
-
-	volumeFolder.add( volumeApi, 'volume', 0.0, 1, 0.01 ).onChange( modifyTimeScale );
-	const demoCtrl = demosFolder.add( api, 'demo' ).options( demos );
-	demoCtrl.onChange( function () {
-
-		worker.postMessage({
-				type: 'gui',
-				sample: api.demo,
-				state : 'Play',
-				stage : sceneApi.scene,
-				});
-
-} );
-
-    //api = { scene: 'Stage - I' };
-	
-	var sceneCtrl = stagesFolder.add( sceneApi, 'scene' ).options( stages );
-	sceneCtrl.onChange( function () {
-        worker.postMessage({
-		type: 'gui',
-		sample: api.demo,
-		state : 'Stop',
-		stage : sceneApi.scene
-		});
-
-} );
-
-function modifyTimeScale( speed ) {
-
-	setAudioLevel(speed);
-
-}
-
-function createEmoteCallback( name ) {
-		api[ name ] = function () {
-			if(name=="Stop"){
-				stopAudio();
-			}
-			worker.postMessage({
-				type: 'gui',
-				sample: api.demo,
-				state: name,
-				stage : sceneApi.scene
-				});
-		};
-	
-		emotesFolder.add( api, name );
-}
-
-for ( let i = 0; i < emotes.length; i ++ ) {
-createEmoteCallback( emotes[ i ] );
-}
-
-
-	
-	
-
-}
 
 
 
