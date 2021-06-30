@@ -2,6 +2,8 @@ import init from './scene.js';
 import {playVideo} from './scene.js';
 import {EventDispatcher}from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
 import {guiSettings} from './scene.js';
+import {stateChanger} from './scene.js';
+import {demoChanger} from './scene.js';
 
 function noop() {
 }
@@ -86,11 +88,24 @@ function ui(data){
 //to handle gui class 
 function gui(data){
   console.log("gui event called");
-  console.log(data.panel);
-  console.log(data.demo);
-  console.log(data.state);
-  console.log(data.stage);
-  guiSettings(data)
+  // console.log(data.panel);
+  // console.log(data.demo);
+  // console.log(data.state);
+  // console.log(data.stage);
+ // guiSettings(data)
+  switch(data.panel){
+    case "demos":
+      demoChanger(data);
+      //call demo changer function
+      break;
+    case "states":
+      //call state changer function
+      stateChanger(data);
+      break;
+
+    case "stages":
+      break;
+  }
   
   //playVideo(data.play)
 }
@@ -107,7 +122,7 @@ self.onmessage = function ( message ) {
     var data = message.data;
     const fn = handlers[data.type]
     if(!fn){
-      //console.log("message handle error!");
+      console.log("message handle error!");
     }else{
       //console.log(data.type)
     }

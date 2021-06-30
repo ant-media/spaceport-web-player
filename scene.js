@@ -5,7 +5,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
 
 var camera, cameraTarget, scene, renderer, group;
-var numContainer=2; var iterContaier=0;
+var numContainer=150; var iterContaier=0;
 var textureLoader, dracoLoader;
 var meshes = [];
 var controls;
@@ -13,6 +13,7 @@ var PlayButton = false;
 var index = 0;
 var stage;
 const allAudio = [];
+var path = "sample_videos/demo1/container_";
 
 function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
 
@@ -103,7 +104,7 @@ function getVolumetricContainer(testCanvas){
 		//PlayButton=true;
 		return;
 	}
-	var url=  "sample_videos/demo2/container_" + iterContaier;
+	var url=  path + iterContaier;
 	console.log("decoded mesh", url)
 	//console.log(url)
 	iterContaier++;
@@ -143,12 +144,13 @@ function getVolumetricContainer(testCanvas){
 		postMessage({
 			type: 'incProgress',
 			});
-		var audioData = data.slice(offset,data.byteLength);
-		//console.log(audioData);
-		postMessage({
-			type: 'decodeAudio',
-			audata: audioData,
-			});
+			//comment for some interval tests
+		// var audioData = data.slice(offset,data.byteLength);
+		// //console.log(audioData);
+		// postMessage({
+		// 	type: 'decodeAudio',
+		// 	audata: audioData,
+		// 	});
 		bitmapTextureLoader(url,drcMesh);	
 		
 
@@ -262,17 +264,7 @@ export function playVideo(isPlay){
 export function guiSettings(data){
 	//console.log(data.state)
 	//console.log(data.sample)
-	if(data.state=="Play"){
-		PlayButton=true
-	}else if(data.state=="Stop"){
-		PlayButton=false
-	}
-	if(data.state=="Replay"){
-		group.remove(meshes[index-1]);
-		index = 0;
-		PlayButton=true;
-	}
-
+	
 	if(data.stage=="Empty"){
 		//console.log("scene remove");
 		scene.remove(stage.scene);
@@ -283,6 +275,43 @@ export function guiSettings(data){
 	}
 
 }
+
+export function stateChanger(data){
+	//do somet
+	if(data.state=="Play"){
+		PlayButton=true
+	}else if(data.state=="Stop"){
+		PlayButton=false
+	}else{
+		group.remove(meshes[index-1]);
+		index = 0;
+		PlayButton=true;
+	}
+}
+
+export function demoChanger(data){
+	resetStream();
+	console.log("demo changed");
+	if(data.demo=="Demo - I"){
+		path = "sample_videos/demo1/container_";
+	}else if(data.demo=="Demo - II"){
+		path = "sample_videos/demo2/container_";
+	}else{
+		path = "sample_videos/demo3/container";
+	}
+	getVolumetricContainer();
+	
+}
+
+function resetStream(){
+	console.log("STREAM RESET");
+	PlayButton=false;
+	group.remove(meshes[index-1]);
+	index = 0;
+	meshes = [];
+	iterContaier=0;
+}
+
 
 export default init;
 

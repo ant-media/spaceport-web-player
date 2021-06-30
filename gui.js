@@ -107,13 +107,8 @@ class threeUI{
 	}
 }
 
-
 export function UI(worker){
 	let UI = new threeUI(worker);
 }
-
-function test(stream){
-	console.log("call gui",stream);
-};
 
 
