@@ -4,6 +4,7 @@ import {EventDispatcher}from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/t
 import {guiSettings} from './scene.js';
 import {stateChanger} from './scene.js';
 import {demoChanger} from './scene.js';
+import {stageChanger} from  './scene.js';
 
 function noop() {
 }
@@ -102,8 +103,9 @@ function gui(data){
       //call state changer function
       stateChanger(data);
       break;
-
     case "stages":
+      //call stage changer funtion
+      stageChanger(data);
       break;
   }
   

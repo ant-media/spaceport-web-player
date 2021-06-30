@@ -265,15 +265,6 @@ export function guiSettings(data){
 	//console.log(data.state)
 	//console.log(data.sample)
 	
-	if(data.stage=="Empty"){
-		//console.log("scene remove");
-		scene.remove(stage.scene);
-
-	}else{
-		scene.add( stage.scene );
-	
-	}
-
 }
 
 export function stateChanger(data){
@@ -301,6 +292,18 @@ export function demoChanger(data){
 	}
 	getVolumetricContainer();
 	
+}
+
+export function stageChanger(data){
+		if(data.stage=="Empty"){
+		//console.log("scene remove");
+		scene.remove(stage.scene);
+
+	}else{
+		scene.add( stage.scene );
+	
+	}
+
 }
 
 function resetStream(){

@@ -186,7 +186,7 @@ export function main(){
              }
     }
         
-    // not possible to decode audio on workers side.
+    //not possible to decode audio on workers side.
     function decodeAudio( data ) {
         var audioData = data.audata;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
