@@ -1,7 +1,6 @@
 import init from './scene.js';
 import {playVideo} from './scene.js';
 import {EventDispatcher}from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
-import {guiSettings} from './scene.js';
 import {stateChanger} from './scene.js';
 import {demoChanger} from './scene.js';
 import {stageChanger} from  './scene.js';
@@ -89,11 +88,6 @@ function ui(data){
 //to handle gui class 
 function gui(data){
   console.log("gui event called");
-  // console.log(data.panel);
-  // console.log(data.demo);
-  // console.log(data.state);
-  // console.log(data.stage);
- // guiSettings(data)
   switch(data.panel){
     case "demos":
       demoChanger(data);

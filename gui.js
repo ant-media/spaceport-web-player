@@ -9,7 +9,7 @@ class threeUI{
 			Volume : 0.2
 		}
 		const gui = new GUI();
-		const demos = ["Demo - I", "Demo - II", "Demo - III"];
+		const demos = ["Demo - I", "Demo - II" ];
 		const states = ["Play", "Stop", "Replay"];
 		const stages = ["Empty", "Scene - I", "Scene - II "]
 		const demosFolder = gui.addFolder("Demos");

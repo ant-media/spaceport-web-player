@@ -261,12 +261,6 @@ export function playVideo(isPlay){
 
 }
 
-export function guiSettings(data){
-	//console.log(data.state)
-	//console.log(data.sample)
-	
-}
-
 export function stateChanger(data){
 	//do somet
 	if(data.state=="Play"){
@@ -280,15 +274,15 @@ export function stateChanger(data){
 	}
 }
 
+//todo: add xml to create dynamic demo structure
+//following version is also working but its for some quick test. ll change.
 export function demoChanger(data){
 	resetStream();
 	console.log("demo changed");
 	if(data.demo=="Demo - I"){
 		path = "sample_videos/demo1/container_";
 	}else if(data.demo=="Demo - II"){
-		path = "sample_videos/demo2/container_";
-	}else{
-		path = "sample_videos/demo3/container";
+		path = "sample_videos/demo2/container";
 	}
 	getVolumetricContainer();
 	
