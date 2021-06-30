@@ -83,8 +83,13 @@ function ui(data){
   //playVideo(data.play)
 }
 
+//to handle gui class 
 function gui(data){
-  //console.log("gui event called");
+  console.log("gui event called");
+  console.log(data.panel);
+  console.log(data.demo);
+  console.log(data.state);
+  console.log(data.stage);
   guiSettings(data)
   
   //playVideo(data.play)

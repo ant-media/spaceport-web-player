@@ -3,19 +3,26 @@ import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/lib
 class threeUI{
 	constructor(worker){
 		const guiController = {
-			Stream: "Demo - I",
-			State : "Stop",
-			Stage : "Scene - I"
+			Stream : "Demo - I",
+			State  : "Stop",
+			Stage  : "Empty",
+			Volume : 0.2
 		}
 		const gui = new GUI();
 		const demos = ["Demo - I", "Demo - II", "Demo - III"];
 		const states = ["Play", "Stop", "Replay"];
-		const stages = ["Scene - I", "Scene - II "]
+		const stages = ["Empty", "Scene - I", "Scene - II "]
 		const demosFolder = gui.addFolder("Demos");
 		const demoCtrl = demosFolder.add( guiController, 'Stream' ).options(demos);
 
 		demoCtrl.onChange( function (){
-			test(guiController.Stream);
+				worker.postMessage({
+				type  : 'gui',
+				panel : 'Stream',
+				demo  : guiController.Stream,
+				state : 'Stop',
+				stage : guiController.Stage,
+			});
 		} )
 
 		const statesFolder = gui.addFolder("States");
@@ -32,24 +39,20 @@ class threeUI{
 
 		const stagesFolder = gui.addFolder("Stages");
 		const stagesCtrl = stagesFolder.add( guiController, 'Stage' ).options(stages);
+		stagesCtrl.onChange( function (){
+			test(guiController.Stage);
+		} )
+		
+		const volumeFolder = gui.addFolder( 'Volume' );
+		volumeFolder.add( guiController, 'Volume', 0.0, 1, 0.01 ).onChange( modifyVolumeLevel );
+		function modifyVolumeLevel( volume ) {
+			console.log(volume)
+			setAudioLevel(volume);	
+		}
 
 
 
 
-
-
-	// 	const api = { demo: 'Demo - I' };
-	// 	const sceneApi = { scene: 'Empty' };
-	// 	const volumeApi = { volume: 0.2};
-	// 	let gui = new GUI();
-	// 	const demos = [ 'Demo - I'];
-	// 	const emotes = [ 'Play', 'Stop', 'Replay'];
-	// 	const stages = ['Empty', 'Stage - I'];
-	// 	const demosFolder = gui.addFolder( 'Demos' );
-	// 	const emotesFolder = gui.addFolder( 'State')
-	// 	const stagesFolder = gui.addFolder( 'Scene')
-	// 	const volumeFolder = gui.addFolder( 'Volume' );
-	// 	volumeFolder.add( volumeApi, 'volume', 0.0, 1, 0.01 ).onChange( modifyTimeScale );
 	// 	const demoCtrl = demosFolder.add( api, 'demo' ).options( demos );
 	// 	demoCtrl.onChange( function () {
 	// 		worker.postMessage({
@@ -72,11 +75,7 @@ class threeUI{
 	
 	// } );
 	
-	// function modifyTimeScale( speed ) {
-	
-	// 	setAudioLevel(speed);
-	
-	// }
+
 	
 	// function createEmoteCallback( name ) {
 	// 		api[ name ] = function () {
