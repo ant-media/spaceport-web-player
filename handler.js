@@ -1,6 +1,97 @@
 
 import { UI } from './gui.js';
 
+class PlayerManager{
+    constructor( ) {
+        this.errorMessage = document.getElementById( 'message' );
+        this.offscreencanvas = document.getElementById( 'offscreencanvas' );
+        this. width = offscreencanvas.clientWidth;
+        this.height = offscreencanvas.clientHeight;
+        this.pixelRatio = window.devicePixelRatio;
+        // offscreen canvas
+        if ( 'transferControlToOffscreen' in offscreencanvas ) {
+            this.offscreen = offscreencanvas.transferControlToOffscreen();
+            this.worker = new Worker( 'offscreen.js', { type: 'module' } );
+            //looks bad, maybe i can create a class to handle some global variables.
+            this.eventHandlers = {
+            contextmenu: preventDefaultHandler,
+            mousedown: mouseEventHandler,
+            mousemove: mouseEventHandler,
+            mouseup: mouseEventHandler,
+            pointerdown: mouseEventHandler,
+            pointermove: mouseEventHandler,
+            pointerup: mouseEventHandler,
+            touchstart: touchEventHandler,
+            touchmove: touchEventHandler,
+            touchend: touchEventHandler,
+            wheel: wheelEventHandler,
+            keydown: filteredKeydownEventHandler,
+        };
+        
+        this.proxy = new ElementProxy(this.offscreencanvas, this.worker, this.eventHandlers);
+        this.worker.postMessage( {
+        thisdrawingSurface: this.offscreen,
+        width: this.offscreencanvas.clientWidth,
+        height: this.offscreencanvas.clientHeight,
+        pixelRatio: window.devicePixelRatio,
+        path: '../../',
+        type: 'start',
+        canvas: this.offscreen,
+        canvasId: this.proxy.id,
+    }, [ this.offscreen ] );
+        } 
+        else {
+        errorMessage.style.display = 'block';
+    }
+    }
+
+    getWorker(){
+        return this.worker;
+
+    }
+
+}
+
+let nextProxyId = 0;
+class ElementProxy {
+    constructor(element, worker, eventHandlers) {
+        this.id = nextProxyId++;
+        this.worker = worker;
+        const sendEvent = (data) => {
+            this.worker.postMessage({
+                type: 'event',
+                id: this.id,
+                data,
+            });
+        };
+// register an id
+    worker.postMessage({
+        type: 'makeProxy',
+        id: this.id,
+    });
+    sendSize();
+    for (const [eventName, handler] of Object.entries(eventHandlers)) {
+        element.addEventListener(eventName, function(event) {
+             handler(event, sendEvent);
+        });
+    }
+
+    function sendSize() {
+        const rect = element.getBoundingClientRect();
+        sendEvent({
+            type: 'size',
+            left: rect.left,
+            top: rect.top,
+            width: element.clientWidth,
+            height: element.clientHeight,
+        });
+    }
+    // really need to use ResizeObserver
+    window.addEventListener('resize', sendSize);
+    }
+}
+
+// detailed : https://threejsfundamentals.org/threejs/lessons/threejs-offscreencanvas.html
 const mouseEventHandler = makeSendPropertiesHandler([
     'ctrlKey',
     'metaKey',
@@ -74,68 +165,29 @@ function filteredKeydownEventHandler(event, sendFn) {
     }
 }
 
-let nextProxyId = 0;
-class ElementProxy {
-    constructor(element, worker, eventHandlers) {
-        this.id = nextProxyId++;
-        this.worker = worker;
-        const sendEvent = (data) => {
-            this.worker.postMessage({
-                type: 'event',
-                id: this.id,
-                data,
-            });
-        };
-// register an id
-    worker.postMessage({
-        type: 'makeProxy',
-        id: this.id,
-    });
-    sendSize();
-    for (const [eventName, handler] of Object.entries(eventHandlers)) {
-        element.addEventListener(eventName, function(event) {
-             handler(event, sendEvent);
-        });
-    }
-
-    function sendSize() {
-        const rect = element.getBoundingClientRect();
-        sendEvent({
-            type: 'size',
-            left: rect.left,
-            top: rect.top,
-            width: element.clientWidth,
-            height: element.clientHeight,
-        });
-    }
-    // really need to use ResizeObserver
-    window.addEventListener('resize', sendSize);
-    }
-}
-
-
 export function main(){
+    const webPlayer = new PlayerManager();
     var progresBar = 0;
     const progresBarUI =  document.getElementById("progressBar");
-    const webPlayer = new PlayerManager();
-     //to handle received message coming from worker
-     //increase proggres bar or decode audio
-     const handlers = {
+    
+    //to handle received message coming from worker
+    //increase proggres bar or decode audio
+    const handlers = {
         incProgress,
         decodeAudio,
     };
     
     //to inc progress bar
-    function incProgress(){
+    function incProgress( ) {
         progresBar++;
         bar1.set(progresBar);
         if(progresBar==100){
              progresBarUI.setAttribute("hidden","");
              }
-        }
+    }
         
     // not possible to decode audio on workers side.
-    function decodeAudio(data){
+    function decodeAudio( data ) {
         var audioData = data.audata;
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         var sourceTemp = audioCtx.createBufferSource();
@@ -153,58 +205,9 @@ export function main(){
         messageType(data)
     };
 
-    UI( webPlayer.getWorker());
+    UI( webPlayer.getWorker() );
 }
 
-class PlayerManager{
-    constructor( ) {
-        this.errorMessage = document.getElementById( 'message' );
-        this.offscreencanvas = document.getElementById( 'offscreencanvas' );
-        this. width = offscreencanvas.clientWidth;
-        this.height = offscreencanvas.clientHeight;
-        this.pixelRatio = window.devicePixelRatio;
-        // offscreen canvas
-        if ( 'transferControlToOffscreen' in offscreencanvas ) {
-            this.offscreen = offscreencanvas.transferControlToOffscreen();
-            this.worker = new Worker( 'offscreen.js', { type: 'module' } );
-            //looks bad, maybe i can create a class to handle some global variables.
-            this.eventHandlers = {
-            contextmenu: preventDefaultHandler,
-            mousedown: mouseEventHandler,
-            mousemove: mouseEventHandler,
-            mouseup: mouseEventHandler,
-            pointerdown: mouseEventHandler,
-            pointermove: mouseEventHandler,
-            pointerup: mouseEventHandler,
-            touchstart: touchEventHandler,
-            touchmove: touchEventHandler,
-            touchend: touchEventHandler,
-            wheel: wheelEventHandler,
-            keydown: filteredKeydownEventHandler,
-        };
-        
-        this.proxy = new ElementProxy(this.offscreencanvas, this.worker, this.eventHandlers);
-        this.worker.postMessage( {
-        thisdrawingSurface: this.offscreen,
-        width: this.offscreencanvas.clientWidth,
-        height: this.offscreencanvas.clientHeight,
-        pixelRatio: window.devicePixelRatio,
-        path: '../../',
-        type: 'start',
-        canvas: this.offscreen,
-        canvasId: this.proxy.id,
-    }, [ this.offscreen ] );
-} else {
-        errorMessage.style.display = 'block';
-    }
-    }
-
-    getWorker(){
-        return this.worker;
-
-    }
-
-}
 
 
 

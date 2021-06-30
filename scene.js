@@ -5,7 +5,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
 
 var camera, cameraTarget, scene, renderer, group;
-var numContainer=199; var iterContaier=0;
+var numContainer=2; var iterContaier=0;
 var textureLoader, dracoLoader;
 var meshes = [];
 var controls;
@@ -100,7 +100,7 @@ function animate() {
 function getVolumetricContainer(testCanvas){
 	//var url = "sample_videos/container" + numberContainer; 
 	if(iterContaier==numContainer){
-		PlayButton=true;
+		//PlayButton=true;
 		return;
 	}
 	var url=  "sample_videos/demo2/container_" + iterContaier;
