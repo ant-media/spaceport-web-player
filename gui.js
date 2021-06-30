@@ -18,18 +18,23 @@ class threeUI{
 		demoCtrl.onChange( function (){
 				worker.postMessage({
 				type  : 'gui',
-				panel : 'Stream',
+				panel : 'demos',
 				demo  : guiController.Stream,
 				state : 'Stop',
 				stage : guiController.Stage,
 			});
-		} )
+		});
 
 		const statesFolder = gui.addFolder("States");
 		function createStateCallback( name ) {
 			guiController[ name ] = function () {
-				//post message will be here.
-				console.log(name);
+				worker.postMessage({
+					type  : 'gui',
+					panel : 'states',
+					demo  : guiController.Stream,
+					state : name,
+					stage : guiController.Stage,
+				});
 			};
 			statesFolder.add( guiController, name );
 		}
@@ -40,8 +45,14 @@ class threeUI{
 		const stagesFolder = gui.addFolder("Stages");
 		const stagesCtrl = stagesFolder.add( guiController, 'Stage' ).options(stages);
 		stagesCtrl.onChange( function (){
-			test(guiController.Stage);
-		} )
+			worker.postMessage({
+			type  : 'gui',
+			panel : 'stages',
+			demo  : guiController.Stream,
+			state : guiController.State,
+			stage : guiController.Stage,
+		});
+	});
 		
 		const volumeFolder = gui.addFolder( 'Volume' );
 		volumeFolder.add( guiController, 'Volume', 0.0, 1, 0.01 ).onChange( modifyVolumeLevel );
@@ -82,12 +93,7 @@ class threeUI{
 	// 			if(name=="Stop"){
 	// 				stopAudio();
 	// 			}
-	// 			worker.postMessage({
-	// 				type: 'gui',
-	// 				sample: api.demo,
-	// 				state: name,
-	// 				stage : sceneApi.scene
-	// 				});
+	// 			
 	// 		};
 		
 	// 		emotesFolder.add( api, name );
