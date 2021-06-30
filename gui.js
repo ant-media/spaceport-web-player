@@ -3,18 +3,40 @@ import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/lib
 class threeUI{
 	constructor(worker){
 		const guiController = {
-			stream: "Demo - I"
+			Stream: "Demo - I",
+			State : "Stop",
+			Stage : "Scene - I"
 		}
 		const gui = new GUI();
 		const demos = ["Demo - I", "Demo - II", "Demo - III"];
+		const states = ["Play", "Stop", "Replay"];
+		const stages = ["Scene - I", "Scene - II "]
 		const demosFolder = gui.addFolder("Demos");
-		const demoCtrl = demosFolder.add( guiController, 'stream' ).options(demos);
-	
-		//gui.add(guiController, "stream", ["Demo - II", "Demo - III"]).name("Demos").onChange(test);
-	// panel = gui.addFolder("Animation");
-	// panel = gui.addFolder("Scene");
-	// panel = gui.addFolder("Volume");
-	
+		const demoCtrl = demosFolder.add( guiController, 'Stream' ).options(demos);
+
+		demoCtrl.onChange( function (){
+			test(guiController.Stream);
+		} )
+
+		const statesFolder = gui.addFolder("States");
+		function createStateCallback( name ) {
+			guiController[ name ] = function () {
+				//post message will be here.
+				console.log(name);
+			};
+			statesFolder.add( guiController, name );
+		}
+		for ( let i = 0; i < states.length; i ++ ) {
+			createStateCallback( states[ i ] );
+		}
+
+		const stagesFolder = gui.addFolder("Stages");
+		const stagesCtrl = stagesFolder.add( guiController, 'Stage' ).options(stages);
+
+
+
+
+
 
 	// 	const api = { demo: 'Demo - I' };
 	// 	const sceneApi = { scene: 'Empty' };
@@ -86,7 +108,7 @@ export function UI(worker){
 }
 
 function test(stream){
-	console.log("call gui",);
+	console.log("call gui",stream);
 };
 
 
