@@ -50,7 +50,7 @@ function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement
 
 
 	initLoaders();
-    initStage();
+    //initStage();
 	animate();
 	getVolumetricContainer(testCanvas);
 }
@@ -107,7 +107,7 @@ function getVolumetricContainer(testCanvas){
 	var url=  path + iterContaier;
 	console.log("decoded mesh", url)
 	//console.log(url)
-	iterContaier++;
+	
 	fetch(url)
 	.then(response => response.arrayBuffer())
 	.then(data =>  {
@@ -119,8 +119,6 @@ function getVolumetricContainer(testCanvas){
       	var timeStamp = data.slice(offset,offset+8);
       	var byteArray = new BigUint64Array(timeStamp);
       	var myNumber = Number(byteArray[0]);
-		
-      	
       	offset=offset+8;
     }
 		var dracoSize = data.slice(offset,offset+8);
@@ -142,7 +140,7 @@ function getVolumetricContainer(testCanvas){
 		var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
 		var url = URL.createObjectURL(imageBlob);
 		//assume that having 100 frame
-		if(iterContaier<=100){
+		if(iterContaier<100){
 			postMessage({
 				type: 'incProgress',
 				});
@@ -172,9 +170,22 @@ function bitmapTextureLoader(url,drcMesh){
 		geometry = setGeometryPosition(geometry);
 		//group.add(geometry);
 		meshes.push(geometry);
+		if(iterContaier==20){
+			showPreview(20);
+		}
+		iterContaier++;
 		getVolumetricContainer();});
 	});
 }
+
+function showPreview(frame){
+	group.add(meshes[20]);
+}
+
+function removePreview(frame){
+	group.remove(meshes[20]);
+}
+
 // to fit geometry according to scene
 function setGeometryPosition(geometry){
 	geometry.rotation.z = Math.PI;
@@ -235,7 +246,7 @@ function createStage(){
 	} );
 }
 // init stage
-function initStage(){
+function stage1(){
 	const loader = new GLTFLoader().setPath( 'models/glTF/' );
 	loader.load( 'scene.gltf', function ( gltf ) {
 	stage=gltf;
@@ -243,8 +254,59 @@ function initStage(){
 	stage.scene.position.y = -20
 	stage.scene.position.z = 10;
 	stage.scene.position.x = 0.6;
+	scene.add( stage.scene );
    } );
 	
+}
+
+function stage2(){
+	let floorMat;
+	floorMat = new THREE.MeshStandardMaterial( {
+		roughness: 0.8,
+		color: 0xffffff,
+		metalness: 0.2,
+		bumpScale: 0.0005
+	} );
+
+	textureLoader.load("textures/hardwood2_diffuse.jpg", function ( map ) {
+		map.wrapS = THREE.RepeatWrapping;
+		map.wrapT = THREE.RepeatWrapping;
+		map.anisotropy = 4;
+		map.repeat.set( 10, 24 );
+		map.encoding = THREE.sRGBEncoding;
+		floorMat.map = map;
+		floorMat.needsUpdate = true;
+		
+		} );
+		console.log("texture loaded");
+		
+		textureLoader.load("textures/hardwood2_bump.jpg", function ( map ) {
+			map.wrapS = THREE.RepeatWrapping;
+			map.wrapT = THREE.RepeatWrapping;
+			map.anisotropy = 4;
+			map.repeat.set( 10, 24 );
+			map.encoding = THREE.sRGBEncoding;
+			floorMat.map = map;
+			floorMat.needsUpdate = true;
+			} );
+
+		textureLoader.load("textures/hardwood2_roughness.jpg", function ( map ) {
+			map.wrapS = THREE.RepeatWrapping;
+			map.wrapT = THREE.RepeatWrapping;
+			map.anisotropy = 4;
+			map.repeat.set( 10, 24 );
+			map.encoding = THREE.sRGBEncoding;
+			floorMat.map = map;
+			floorMat.needsUpdate = true;
+		} );
+
+
+	const floorGeometry = new THREE.PlaneGeometry( 20, 20 );
+	const floorMesh = new THREE.Mesh( floorGeometry, floorMat );
+	floorMesh.receiveShadow = true;
+	floorMesh.rotation.x = - Math.PI / 2.0;
+	group.add( floorMesh );
+
 }
 
 // not working yet
@@ -260,6 +322,7 @@ export function playVideo(isPlay){
 		
 		PlayButton=true;
 
+
 	}
 
 }
@@ -267,6 +330,7 @@ export function playVideo(isPlay){
 export function stateChanger(data){
 	//do somet
 	if(data.state=="Play"){
+		removePreview(20);
 		PlayButton=true
 	}else if(data.state=="Stop"){
 		PlayButton=false
@@ -293,12 +357,11 @@ export function demoChanger(data){
 
 export function stageChanger(data){
 		if(data.stage=="Empty"){
-		//console.log("scene remove");
 		scene.remove(stage.scene);
-
+	}else if("Stage - I"){
+		stage1();
 	}else{
-		scene.add( stage.scene );
-	
+		stage2();
 	}
 
 }
