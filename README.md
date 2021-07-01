@@ -10,9 +10,7 @@
   <br />
   <a href="https://github.com/ant-media/spaceport-web-player/issues">Report a Bug</a>
   ·
-  <a href="https://github.com/ant-media/spaceport-web-player/issues">Request a Feature</a>
-  .
-  <a href="https://github.com/dec0dOS/amazing-github-template/discussions">Ask a Question</a>
+  <a href="https://github.com/ant-media/spaceport-web-player/issues">Ask a Question</a>
 </div>
 
 <div align="center">
