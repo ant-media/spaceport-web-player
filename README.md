@@ -18,7 +18,7 @@
 
 
 [![Spaceport]( https://img.shields.io/badge/Spaceport-%201.2-critical)](https://github.com/ant-media/Ant-Media-Server/wiki/Meet-Spaceport)
-[![SpaceportWebPlayer](https://img.shields.io/badge/Spaceport-Web%20Player-brightgreen)](https://ant-media.github.io/spaceport-web-player/spaceport_web_player.html)
+[![SpaceportWebPlayer](https://img.shields.io/badge/Spaceport-Web%20Player-brightgreen)](https://ant-media.github.io/spaceport-web-player/index.html)
 [![PRs welcome](https://img.shields.io/badge/PRs-%20Welcome-important)](https://github.com/ant-media/spaceport-web-player/issues)
   
   
