@@ -11,7 +11,7 @@ class PlayerManager{
         // offscreen canvas
         if ( 'transferControlToOffscreen' in offscreencanvas ) {
             this.offscreen = offscreencanvas.transferControlToOffscreen();
-            this.worker = new Worker( 'offscreen.js', { type: 'module' } );
+            this.worker = new Worker( './js/workers/offscreen.js', { type: 'module' } );
             //looks bad, maybe i can create a class to handle some global variables.
             this.eventHandlers = {
             contextmenu: preventDefaultHandler,

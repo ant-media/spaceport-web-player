@@ -13,7 +13,7 @@ var PlayButton = false;
 var index = 0;
 var stage;
 const allAudio = [];
-var path = "sample_videos/demo1/container_";
+var path = "../../sample_videos/demo1/container_";
 
 function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
 
@@ -59,7 +59,7 @@ function initLoaders(){
 	textureLoader = new THREE.ImageBitmapLoader();
 	textureLoader.setOptions( { imageOrientation: 'flipY' } );
 	dracoLoader = new DRACOLoader();
-	dracoLoader.setDecoderPath( 'draco/' );
+	dracoLoader.setDecoderPath( '../../draco/' );
 	dracoLoader.setDecoderConfig( { type: 'js' } );
 }
 // display meshes
@@ -235,7 +235,7 @@ function createControls(camera, inputElement){
 }
 // add, remove stage
 function createStage(){
-	const loader = new GLTFLoader().setPath( 'models/glTF/' );
+	const loader = new GLTFLoader().setPath( '../../models/glTF/' );
 	loader.load( 'scene.gltf', function ( gltf ) {
     gltf.scene.scale.multiplyScalar(2/5);
     gltf.scene.position.y = -2         
@@ -244,7 +244,7 @@ function createStage(){
 }
 // init stage
 function stage1(){
-	const loader = new GLTFLoader().setPath( 'models/glTF/' );
+	const loader = new GLTFLoader().setPath( '../../models/glTF/' );
 	loader.load( 'scene.gltf', function ( gltf ) {
 	stage=gltf;
 	stage.scene.scale.multiplyScalar(1);
@@ -343,9 +343,9 @@ export function stateChanger(data){
 export function demoChanger(data){
 	resetStream();
 	if(data.demo=="Demo - I"){
-		path = "sample_videos/demo1/container_";
+		path = "../../sample_videos/demo1/container_";
 	}else if(data.demo=="Demo - II"){
-		path = "sample_videos/demo2/container";
+		path = "../../sample_videos/demo2/container";
 	}
 	getVolumetricContainer();
 	

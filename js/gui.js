@@ -11,7 +11,7 @@ class threeUI{
 		const gui = new GUI();
 		const demos = ["Demo - I", "Demo - II" ];
 		const states = ["Play", "Stop", "Replay"];
-		const stages = ["Empty", "Scene - I", "Scene - II "]
+		const stages = ["Empty", "Scene - I"]
 		const demosFolder = gui.addFolder("Demos");
 		const demoCtrl = demosFolder.add( guiController, 'Stream' ).options(demos);
 
@@ -54,55 +54,13 @@ class threeUI{
 		});
 	});
 		
-		const volumeFolder = gui.addFolder( 'Volume' );
-		volumeFolder.add( guiController, 'Volume', 0.0, 1, 0.01 ).onChange( modifyVolumeLevel );
-		function modifyVolumeLevel( volume ) {
-			setAudioLevel(volume);	
-		}
-
-
-
-
-	// 	const demoCtrl = demosFolder.add( api, 'demo' ).options( demos );
-	// 	demoCtrl.onChange( function () {
-	// 		worker.postMessage({
-	// 				type: 'gui',
-	// 				sample: api.demo,
-	// 				state : 'Play',
-	// 				stage : sceneApi.scene,
-	// 				});
-	// 			} );
+		// volume level 
+		// const volumeFolder = gui.addFolder( 'Volume' );
+		// volumeFolder.add( guiController, 'Volume', 0.0, 1, 0.01 ).onChange( modifyVolumeLevel );
+		// function modifyVolumeLevel( volume ) {
+		// 	setAudioLevel(volume);	
+		// }
 	
-	// 	//api = { scene: 'Stage - I' };
-	// 	var sceneCtrl = stagesFolder.add( sceneApi, 'scene' ).options( stages );
-	// 	sceneCtrl.onChange( function () {
-	// 		worker.postMessage({
-	// 		type: 'gui',
-	// 		sample: api.demo,
-	// 		state : 'Stop',
-	// 		stage : sceneApi.scene
-	// 		});
-	
-	// } );
-	
-
-	
-	// function createEmoteCallback( name ) {
-	// 		api[ name ] = function () {
-	// 			if(name=="Stop"){
-	// 				stopAudio();
-	// 			}
-	// 			
-	// 		};
-		
-	// 		emotesFolder.add( api, name );
-	// }
-	
-	// for ( let i = 0; i < emotes.length; i ++ ) {
-	// createEmoteCallback( emotes[ i ] );
-	// }
-	
-
 	}
 }
 
