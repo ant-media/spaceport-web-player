@@ -141,10 +141,13 @@ function getVolumetricContainer(testCanvas){
 		offset=offset+myNumber;
 		var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
 		var url = URL.createObjectURL(imageBlob);
-		postMessage({
-			type: 'incProgress',
-			});
-			//comment for some interval tests
+		//assume that having 100 frame
+		if(iterContaier<=100){
+			postMessage({
+				type: 'incProgress',
+				});
+		}
+		//comment for some interval tests
 		// var audioData = data.slice(offset,data.byteLength);
 		// //console.log(audioData);
 		// postMessage({
@@ -233,7 +236,7 @@ function createStage(){
 }
 // init stage
 function initStage(){
-		const loader = new GLTFLoader().setPath( 'models/glTF/' );
+	const loader = new GLTFLoader().setPath( 'models/glTF/' );
 	loader.load( 'scene.gltf', function ( gltf ) {
 	stage=gltf;
 	stage.scene.scale.multiplyScalar(1);
@@ -308,7 +311,6 @@ function resetStream(){
 	meshes = [];
 	iterContaier=0;
 }
-
 
 export default init;
 

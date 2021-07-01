@@ -166,6 +166,16 @@ function filteredKeydownEventHandler(event, sendFn) {
 }
 
 export function main(){
+    var progressBarDiv;
+		progressBarDiv = document.createElement( 'div' );
+		progressBarDiv.innerText = "Loading...";
+		progressBarDiv.style.fontSize = "3em";
+		progressBarDiv.style.color = "#888";
+		progressBarDiv.style.display = "block";
+		progressBarDiv.style.position = "absolute";
+		progressBarDiv.style.top = "50%";
+		progressBarDiv.style.width = "100%";
+		progressBarDiv.style.textAlign = "center";
     const webPlayer = new PlayerManager();
     var progresBar = 0;
     const progresBarUI =  document.getElementById("progressBar");
@@ -180,10 +190,35 @@ export function main(){
     //to inc progress bar
     function incProgress( ) {
         progresBar++;
-        bar1.set(progresBar);
+        // bar1.set(progresBar);
         if(progresBar==100){
-             progresBarUI.setAttribute("hidden","");
-             }
+             hideProgressBar();
+             progresBar=0;
+        }else if(progresBar<100){
+            showProgressBar();
+            updateProgressBar( progresBar );    
+        }else{
+         //nothing   
+        }
+       
+    }
+
+    function updateProgressBar( fraction ) {
+
+        progressBarDiv.innerText = 'Loading... ' + fraction;
+
+    }
+
+    function hideProgressBar() {
+
+        document.body.removeChild( progressBarDiv );
+
+    }
+
+    function showProgressBar() {
+
+        document.body.appendChild( progressBarDiv );
+
     }
         
     //not possible to decode audio on workers side.
@@ -195,6 +230,7 @@ export function main(){
             allAudio.push(buffer); 
         });
     }
+    
     
     webPlayer.getWorker().onmessage = function ( message ) {
         var data = message.data;

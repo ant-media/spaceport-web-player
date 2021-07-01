@@ -1,9 +1,8 @@
 import init from './scene.js';
 import {playVideo} from './scene.js';
 import {EventDispatcher}from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
-import {stateChanger} from './scene.js';
-import {demoChanger} from './scene.js';
-import {stageChanger} from  './scene.js';
+import {stateChanger, demoChanger, stageChanger} from './scene.js';
+
 
 function noop() {
 }
