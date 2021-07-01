@@ -20,12 +20,14 @@
 
 
 [![Spaceport]( https://img.shields.io/badge/Spaceport-%201.2-critical)](https://github.com/ant-media/Ant-Media-Server/wiki/Meet-Spaceport)
+[![SpaceportWebPlayer](https://img.shields.io/badge/Spaceport-Web%20Player-brightgreen)](https://ant-media.github.io/spaceport-web-player/spaceport_web_player.html)
 [![PRs welcome](https://img.shields.io/badge/PRs-%20Welcome-important)](https://github.com/ant-media/spaceport-web-player/issues)
   
   
-  ## Browsers support
 
-| [<img src="https://cdn.freelogovectors.net/wp-content/uploads/2020/02/microsoft-edge-logo.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome   |
+  
+
+| [<img src="https://cdn.freelogovectors.net/wp-content/uploads/2020/02/microsoft-edge-logo.png" alt="IE / Edge" width="24px" height="24px" />](https://caniuse.com/offscreencanvas)</br>IE / Edge | [<img src="https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png" alt="Chrome" width="24px" height="24px" />](https://caniuse.com/offscreencanvas)</br>Chrome   |
 | ---------  | --------- | 
 | 79, 90, 91| 91, 92, 94
   
