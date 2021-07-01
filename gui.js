@@ -57,7 +57,6 @@ class threeUI{
 		const volumeFolder = gui.addFolder( 'Volume' );
 		volumeFolder.add( guiController, 'Volume', 0.0, 1, 0.01 ).onChange( modifyVolumeLevel );
 		function modifyVolumeLevel( volume ) {
-			console.log(volume)
 			setAudioLevel(volume);	
 		}
 

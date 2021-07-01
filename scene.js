@@ -105,9 +105,6 @@ function getVolumetricContainer(testCanvas){
 		return;
 	}
 	var url=  path + iterContaier;
-	console.log("decoded mesh", url)
-	//console.log(url)
-	
 	fetch(url)
 	.then(response => response.arrayBuffer())
 	.then(data =>  {
@@ -278,7 +275,7 @@ function stage2(){
 		floorMat.needsUpdate = true;
 		
 		} );
-		console.log("texture loaded");
+		//console.log("texture loaded");
 		
 		textureLoader.load("textures/hardwood2_bump.jpg", function ( map ) {
 			map.wrapS = THREE.RepeatWrapping;
@@ -345,7 +342,6 @@ export function stateChanger(data){
 //following version is also working but its for some quick test. ll change.
 export function demoChanger(data){
 	resetStream();
-	console.log("demo changed");
 	if(data.demo=="Demo - I"){
 		path = "sample_videos/demo1/container_";
 	}else if(data.demo=="Demo - II"){
@@ -367,7 +363,6 @@ export function stageChanger(data){
 }
 
 function resetStream(){
-	console.log("STREAM RESET");
 	PlayButton=false;
 	group.remove(meshes[index-1]);
 	index = 0;

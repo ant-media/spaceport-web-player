@@ -199,26 +199,19 @@ export function main(){
             updateProgressBar( progresBar );    
         }else{
          //nothing   
-        }
-       
+        }    
     }
 
     function updateProgressBar( fraction ) {
-
         progressBarDiv.innerText = 'Loading... ' + fraction;
-
     }
 
     function hideProgressBar() {
-
         document.body.removeChild( progressBarDiv );
-
     }
 
     function showProgressBar() {
-
         document.body.appendChild( progressBarDiv );
-
     }
         
     //not possible to decode audio on workers side.
@@ -230,7 +223,6 @@ export function main(){
             allAudio.push(buffer); 
         });
     }
-    
     
     webPlayer.getWorker().onmessage = function ( message ) {
         var data = message.data;

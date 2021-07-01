@@ -86,7 +86,7 @@ function ui(data){
 
 //to handle gui class 
 function gui(data){
-  console.log("gui event called");
+  //console.log("gui event called");
   switch(data.panel){
     case "demos":
       demoChanger(data);
