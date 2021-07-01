@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Spaceport Volumetric Web Player</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="./css/main.css">
+		<style>
+			body {
+				
+				color: #222;
+			}
+
+			a {
+				color: #2fa1d6;
+			}
+
+			p {
+				max-width: 600px;
+				margin-left: auto;
+				margin-right: auto;
+				padding: 0 2em;
+			}
+
+			#message {
+				color: #ff0000;
+				display: none;
+			}
+
+			#message > a {
+				color: #ff0000;
+			}
+
+			#container {
+				position: absolute;
+				top: 0px;
+				bottom: 0px;
+				width: 100%;
+				height: 100%;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div id="info">
+			<a href="https://antmedia.io/" target="_blank" rel="noopener noreferrer">Ant Media</a> - Spaceport Web Player (<a href="https://spaceport.tv/" target="_blank" rel="noopener noreferrer">about</a>)<br/>
+			<p id="message">Your browser does not support OffscreenCanvas. Check the browser support <a href="https://caniuse.com/#feat=offscreencanvas" target="_blank" rel="noopener noreferrer">here</a></p>
+		</div>
+
+		<div id="container">
+			<canvas id="offscreencanvas" style="width: 100%; height: 100%"></canvas>
+		</div>
+		<div id="progressBar"></div>
+		<script type="text/javascript" src="./js/main.js"></script>
+		<script type="text/javascript" src="./js/loading-bar.js"></script>
+	
+		<script type="module">
+		import { main } from './js/handler.js';
+		main();
+		
+		</script>
+	</body>
+</html>
