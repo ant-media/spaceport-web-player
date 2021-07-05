@@ -29,6 +29,7 @@ class threeUI{
 		});
 
 		const statesFolder = gui.addFolder("States");
+		statesFolder.open();
 		function createStateCallback( name ) {
 			guiController[ name ] = function () {
 				playMessage(name);

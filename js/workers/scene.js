@@ -72,20 +72,22 @@ function animate() {
 		
     intervalId = setInterval(function(){
 		 self.requestAnimationFrame( function render(t) {
-			 if(index>0 && PlayButton==true){	
-				 meshes[index-1].material.dispose();	 
-                 meshes[index-1].geometry.dispose();
-				 scene.remove[meshes[index-1]];
-				 group.remove(meshes[index-1]);		
-									
-				 delete meshes[index-1]		
-				}
+			 if(index>0 && PlayButton==true){
+								
+				// meshes[index-1].texture.dispose();
+				// console.log("texture dispose");
+				 meshes[index-1].material.dispose();
+                 meshes[index-1].geometry.dispose();;	
+				 scene.remove(meshes[index-1]);		
+				 delete meshes[index-1]	
+				 meshes[index-1]=[]	
+				};
 				 if(PlayButton==true){
-				    group.add(meshes[index]);
+				    scene.add(meshes[index]);
 					index++;
 					interval = 83.333;
 					if(index>=numContainer){
-						group.remove(meshes[index-1]);
+						scene.remove(meshes[index-1]);
 						PlayButton	= false;
 						index=0;
 					}
@@ -141,7 +143,7 @@ function getVolumetricContainer(testCanvas){
 		var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
 		var url = URL.createObjectURL(imageBlob);
 		//assume that having 100 frame
-		if(iterContaier<100){
+		if(iterContaier<199){
 			postMessage({
 				type: 'incProgress',
 				});
@@ -173,6 +175,7 @@ function bitmapTextureLoader(url,drcMesh){
 		meshes.push(geometry);
 		texture.dispose();
 		material.dispose();
+		geometry.geometry.dispose();
 		if(iterContaier==20){
 			showPreview(20);
 		}
@@ -307,7 +310,7 @@ export function demoChanger(data){
 		numContainer=199;
 		path = "../../sample_videos/demo1/container_";
 	}else if(data.demo=="Demo - II"){
-		numContainer=460;
+		numContainer=199;
 		path = "../../sample_videos/demo2/container";
 	}
 	getVolumetricContainer();
@@ -327,7 +330,7 @@ export function stageChanger(data){
 
 function resetStream(){
 	PlayButton=false;
-	group.remove(meshes[index-1]);
+	scene.remove(meshes[index-1]);
 	index = 0;
 	meshes = [];
 	iterContaier=0;
