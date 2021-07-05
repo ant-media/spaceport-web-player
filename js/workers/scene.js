@@ -80,7 +80,7 @@ function animate() {
 				    group.add(meshes[index]);
 					index++;
 					interval = 83.333;
-					if(index>199){
+					if(index>numContainer){
 						group.remove(meshes[index-1]);
 						PlayButton	= false;
 						index=0;
@@ -343,8 +343,10 @@ export function stateChanger(data){
 export function demoChanger(data){
 	resetStream();
 	if(data.demo=="Demo - I"){
+		numContainer=199;
 		path = "../../sample_videos/demo1/container_";
 	}else if(data.demo=="Demo - II"){
+		numContainer=460;
 		path = "../../sample_videos/demo2/container";
 	}
 	getVolumetricContainer();
