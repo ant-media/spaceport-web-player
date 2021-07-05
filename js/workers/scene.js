@@ -72,21 +72,12 @@ function animate() {
 		
     intervalId = setInterval(function(){
 		 self.requestAnimationFrame( function render(t) {
-			 if(index>0 && PlayButton==true){
-				 console.log("bastirilan frame  | ", index)
-			
-				// meshes[index-1].texture.dispose();
-				// console.log("texture dispose");
-				 meshes[index-1].material.dispose();
-				 console.log("material dispose");
+			 if(index>0 && PlayButton==true){	
+				 meshes[index-1].material.dispose();	 
                  meshes[index-1].geometry.dispose();
-				 console.log("geometry dispose");
-
 				 scene.remove[meshes[index-1]];
 				 group.remove(meshes[index-1]);		
-				 meshes[index -1]=[];
-						 
-							
+									
 				 delete meshes[index-1]		
 				}
 				 if(PlayButton==true){
@@ -181,6 +172,7 @@ function bitmapTextureLoader(url,drcMesh){
 		//group.add(geometry);
 		meshes.push(geometry);
 		texture.dispose();
+		material.dispose();
 		if(iterContaier==20){
 			showPreview(20);
 		}
