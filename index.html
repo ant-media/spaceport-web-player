@@ -9,10 +9,11 @@
 			body {
 				
 				color: #222;
+				
 			}
 
 			a {
-				color: #2fa1d6;
+				color: #e21717;
 			}
 
 			p {
@@ -65,7 +66,7 @@
 		import { playMessage } from './js/gui.js';
 
 	    var box = document.getElementById( 'playPauseButton' );
-		//box.style.visibility= "hidden";
+		box.style.visibility= "hidden";
 		box.addEventListener('click', (e)=>{
 			playMessage("Play");
 			box.style.visibility= "hidden";
