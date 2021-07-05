@@ -91,7 +91,7 @@ class ElementProxy {
     }
 }
 
-// detailed : https://threejsfundamentals.org/threejs/lessons/threejs-offscreencanvas.html
+// reference && detailed : https://threejsfundamentals.org/threejs/lessons/threejs-offscreencanvas.html
 const mouseEventHandler = makeSendPropertiesHandler([
     'ctrlKey',
     'metaKey',
@@ -193,6 +193,8 @@ export function main(){
         // bar1.set(progresBar);
         if(progresBar==100){
              hideProgressBar();
+             var box = document.getElementById( 'playPauseButton' );
+             box.style.visibility = "visible";
              progresBar=0;
         }else if(progresBar<100){
             showProgressBar();
