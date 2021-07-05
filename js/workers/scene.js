@@ -5,7 +5,7 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
 
 var camera, cameraTarget, scene, renderer, group;
-var numContainer=150; var iterContaier=0;
+var numContainer=199; var iterContaier=0;
 var textureLoader, dracoLoader;
 var meshes = [];
 var controls;
@@ -73,14 +73,27 @@ function animate() {
     intervalId = setInterval(function(){
 		 self.requestAnimationFrame( function render(t) {
 			 if(index>0 && PlayButton==true){
-				
-				 group.remove(meshes[index-1]);
+				 console.log("bastirilan frame  | ", index)
+			
+				// meshes[index-1].texture.dispose();
+				// console.log("texture dispose");
+				 meshes[index-1].material.dispose();
+				 console.log("material dispose");
+                 meshes[index-1].geometry.dispose();
+				 console.log("geometry dispose");
+
+				 scene.remove[meshes[index-1]];
+				 group.remove(meshes[index-1]);		
+				 meshes[index -1]=[];
+						 
+							
+				 delete meshes[index-1]		
 				}
 				 if(PlayButton==true){
 				    group.add(meshes[index]);
 					index++;
 					interval = 83.333;
-					if(index>numContainer){
+					if(index>=numContainer){
 						group.remove(meshes[index-1]);
 						PlayButton	= false;
 						index=0;
@@ -167,6 +180,7 @@ function bitmapTextureLoader(url,drcMesh){
 		geometry = setGeometryPosition(geometry);
 		//group.add(geometry);
 		meshes.push(geometry);
+		texture.dispose();
 		if(iterContaier==20){
 			showPreview(20);
 		}
@@ -257,52 +271,7 @@ function stage1(){
 }
 
 function stage2(){
-	let floorMat;
-	floorMat = new THREE.MeshStandardMaterial( {
-		roughness: 0.8,
-		color: 0xffffff,
-		metalness: 0.2,
-		bumpScale: 0.0005
-	} );
-
-	textureLoader.load("textures/hardwood2_diffuse.jpg", function ( map ) {
-		map.wrapS = THREE.RepeatWrapping;
-		map.wrapT = THREE.RepeatWrapping;
-		map.anisotropy = 4;
-		map.repeat.set( 10, 24 );
-		map.encoding = THREE.sRGBEncoding;
-		floorMat.map = map;
-		floorMat.needsUpdate = true;
-		
-		} );
-		//console.log("texture loaded");
-		
-		textureLoader.load("textures/hardwood2_bump.jpg", function ( map ) {
-			map.wrapS = THREE.RepeatWrapping;
-			map.wrapT = THREE.RepeatWrapping;
-			map.anisotropy = 4;
-			map.repeat.set( 10, 24 );
-			map.encoding = THREE.sRGBEncoding;
-			floorMat.map = map;
-			floorMat.needsUpdate = true;
-			} );
-
-		textureLoader.load("textures/hardwood2_roughness.jpg", function ( map ) {
-			map.wrapS = THREE.RepeatWrapping;
-			map.wrapT = THREE.RepeatWrapping;
-			map.anisotropy = 4;
-			map.repeat.set( 10, 24 );
-			map.encoding = THREE.sRGBEncoding;
-			floorMat.map = map;
-			floorMat.needsUpdate = true;
-		} );
-
-
-	const floorGeometry = new THREE.PlaneGeometry( 20, 20 );
-	const floorMesh = new THREE.Mesh( floorGeometry, floorMat );
-	floorMesh.receiveShadow = true;
-	floorMesh.rotation.x = - Math.PI / 2.0;
-	group.add( floorMesh );
+	//add stage 2
 
 }
 
