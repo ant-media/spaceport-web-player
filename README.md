@@ -80,8 +80,9 @@ Spaceport creates a high-quality point cloud for each frame and for streamable, 
 
 Volumetric Video Industry is growing and 6Dof videos are being great tools for catching attention and storytelling. Companies allocate more budgets for this new video era. However, there are no standards for volumetric video players yet. Each company creates its own specific players and these players offer only limited options for device support. When you want to watch a volumetric video on any platform or anywhere these options might be a barrier. Besides all these, using VR glasses can be a problem for your budget, or you may have various health problems (headache, nausea). And now, notwithstanding the quality of VR gogglers, we have one more option to watch volumetric videos: Spaceport Volumetric Video Web Player.
 
-Spaceport offers an opportunity to watch volumetric videos on web players without VR devices. You can set your view with mouse/touch events and continue to watch the videos
-You can access [Spaceport Volumetric Web Player from here](https://ant-media.github.io/spaceport-web-player/spaceport_web_player.html).
+Spaceport offers an opportunity to watch volumetric videos on web players without VR devices. You can set your view with mouse/touch events and continue to watch the videos.
+
+## You can access [Spaceport Volumetric Web Player from here](https://ant-media.github.io/spaceport-web-player/spaceport_web_player.html).
 
 <div align="center">
 <a href="https://ant-media.github.io/spaceport-web-player/spaceport_web_player.html">
