@@ -9,10 +9,11 @@
 			body {
 				
 				color: #222;
+				
 			}
 
 			a {
-				color: #2fa1d6;
+				color: #e21717;
 			}
 
 			p {
@@ -51,11 +52,26 @@
 			<canvas id="offscreencanvas" style="width: 100%; height: 100%"></canvas>
 		</div>
 		<div id="progressBar"></div>
+		
+		<div id="backgroundplaceholder">
+		<button id="playPauseButton"></button>
+		</div>
+		
+
 		<script type="text/javascript" src="./js/main.js"></script>
 		<script type="text/javascript" src="./js/loading-bar.js"></script>
 	
 		<script type="module">
 		import { main } from './js/handler.js';
+		import { playMessage } from './js/gui.js';
+
+	    var box = document.getElementById( 'playPauseButton' );
+		box.style.visibility= "hidden";
+		box.addEventListener('click', (e)=>{
+			playMessage("Play");
+			box.style.visibility= "hidden";
+		})
+		
 		main();
 		
 		</script>

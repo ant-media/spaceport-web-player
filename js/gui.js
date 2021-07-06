@@ -1,13 +1,16 @@
 import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/libs/dat.gui.module.js';
 
+var newWorker;
+const guiController = {
+	Stream : "Demo - I",
+	State  : "Stop",
+	Stage  : "Empty",
+	Volume : 0.2
+}
+
 class threeUI{
 	constructor(worker){
-		const guiController = {
-			Stream : "Demo - I",
-			State  : "Stop",
-			Stage  : "Empty",
-			Volume : 0.2
-		}
+	
 		const gui = new GUI();
 		const demos = ["Demo - I", "Demo - II" ];
 		const states = ["Play", "Stop", "Replay"];
@@ -26,15 +29,10 @@ class threeUI{
 		});
 
 		const statesFolder = gui.addFolder("States");
+		statesFolder.open();
 		function createStateCallback( name ) {
 			guiController[ name ] = function () {
-				worker.postMessage({
-					type  : 'gui',
-					panel : 'states',
-					demo  : guiController.Stream,
-					state : name,
-					stage : guiController.Stage,
-				});
+				playMessage(name);
 			};
 			statesFolder.add( guiController, name );
 		}
@@ -64,7 +62,18 @@ class threeUI{
 	}
 }
 
+export function playMessage(name){
+	   newWorker.postMessage({
+		type  : 'gui',
+		panel : 'states',
+		demo  : guiController.Stream,
+		state : name,
+		stage : guiController.Stage,
+	});
+}
+
 export function UI(worker){
+	newWorker = worker;
 	let UI = new threeUI(worker);
 }
 
