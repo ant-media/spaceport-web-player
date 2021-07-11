@@ -296,9 +296,10 @@ export function stateChanger(data){
 	}else if(data.state=="Stop"){
 		PlayButton=false
 	}else{
-		group.remove(meshes[index-1]);
-		index = 0;
-		PlayButton=true;
+		// group.remove(meshes[index-1]);
+		// index = 0;
+		// PlayButton=true;
+		demoChanger(data);
 	}
 }
 
