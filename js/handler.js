@@ -189,9 +189,9 @@ export function main(){
     
     //to inc progress bar
     function incProgress( ) {
-        progresBar=progresBar+0.5;
+        progresBar=progresBar+1;
         // bar1.set(progresBar);
-        if(progresBar==99.5){
+        if(progresBar==100){
              hideProgressBar();
              var box = document.getElementById( 'playPauseButton' );
              box.style.visibility = "visible";
