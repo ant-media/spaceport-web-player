@@ -80,8 +80,8 @@ function animate() {
 				 meshes[index-1].material.dispose();
                  meshes[index-1].geometry.dispose();;	
 				 scene.remove(meshes[index-1]);		
-				 delete meshes[index-1]	
-				 meshes[index-1]=[]	
+				// delete meshes[index-1]	
+				// meshes[index-1]=[]	
 				};
 				 if(PlayButton==true){
 				    scene.add(meshes[index]);
@@ -91,6 +91,10 @@ function animate() {
 						scene.remove(meshes[index-1]);
 						PlayButton	= false;
 						index=0;
+						postMessage({
+							type: 'endVideo',
+							});
+						
 					}
 				 }
 				 controls.update();
@@ -297,10 +301,10 @@ export function stateChanger(data){
 	}else if(data.state=="Stop"){
 		PlayButton=false
 	}else{
-		// group.remove(meshes[index-1]);
-		// index = 0;
-		// PlayButton=true;
-		demoChanger(data);
+	    scene.remove(meshes[index-1]);
+		index = 0;
+		PlayButton=true;
+		//demoChanger(data);
 	}
 }
 

@@ -63,6 +63,8 @@ class threeUI{
 }
 
 export function playMessage(name){
+	    var box = document.getElementById( 'playPauseButton' );
+       box.style.visibility= "hidden";
 	   newWorker.postMessage({
 		type  : 'gui',
 		panel : 'states',
