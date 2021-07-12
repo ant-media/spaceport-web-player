@@ -12,6 +12,7 @@ var controls;
 var PlayButton = false;
 var index = 0;
 var stage;
+var myNumber, byteArray;
 const allAudio = [];
 var path = "../../sample_videos/demo1/container_";
 
@@ -79,17 +80,21 @@ function animate() {
 				 meshes[index-1].material.dispose();
                  meshes[index-1].geometry.dispose();;	
 				 scene.remove(meshes[index-1]);		
-				 delete meshes[index-1]	
-				 meshes[index-1]=[]	
+				// delete meshes[index-1]	
+				// meshes[index-1]=[]	
 				};
 				 if(PlayButton==true){
 				    scene.add(meshes[index]);
 					index++;
-					interval = 83.333;
+					interval = 100;
 					if(index>=numContainer){
 						scene.remove(meshes[index-1]);
 						PlayButton	= false;
 						index=0;
+						postMessage({
+							type: 'endVideo',
+							});
+						
 					}
 				 }
 				 controls.update();
@@ -120,13 +125,13 @@ function getVolumetricContainer(testCanvas){
    		var i;
     	for (i = 0; i < frameNumber ; i++) {
       	var timeStamp = data.slice(offset,offset+8);
-      	var byteArray = new BigUint64Array(timeStamp);
-      	var myNumber = Number(byteArray[0]);
+      	byteArray = new BigUint64Array(timeStamp);
+      	myNumber = Number(byteArray[0]);
       	offset=offset+8;
     }
 		var dracoSize = data.slice(offset,offset+8);
-    	var byteArray = new BigUint64Array(dracoSize);
-    	var myNumber = Number(byteArray[0]);
+    	byteArray = new BigUint64Array(dracoSize);
+    	myNumber = Number(byteArray[0]);
     	offset=offset+8;
     	
 		var drcMesh = data.slice(offset,offset+myNumber);
@@ -135,15 +140,15 @@ function getVolumetricContainer(testCanvas){
 		var jpgSize = data.slice(offset,offset+8);
     	offset=offset+8;
     	var jpgSizeView = new Float64Array(jpgSize);
-    	var byteArray = new BigUint64Array(jpgSize);
-    	var myNumber = Number(byteArray[0]);
+    	byteArray = new BigUint64Array(jpgSize);
+    	myNumber = Number(byteArray[0]);
     	var newTexture =  data.slice(offset,offset+myNumber); 
     	var textureView = new Uint8Array(newTexture);
 		offset=offset+myNumber;
 		var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
 		var url = URL.createObjectURL(imageBlob);
 		//assume that having 100 frame
-		if(iterContaier<199){
+		if(iterContaier%2==0){
 			postMessage({
 				type: 'incProgress',
 				});
@@ -296,9 +301,10 @@ export function stateChanger(data){
 	}else if(data.state=="Stop"){
 		PlayButton=false
 	}else{
-		group.remove(meshes[index-1]);
+	    scene.remove(meshes[index-1]);
 		index = 0;
 		PlayButton=true;
+		//demoChanger(data);
 	}
 }
 

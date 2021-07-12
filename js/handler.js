@@ -1,5 +1,5 @@
 
-import { UI } from './gui.js';
+import { UI, playMessage } from './gui.js';
 
 class PlayerManager{
     constructor( ) {
@@ -179,21 +179,28 @@ export function main(){
     const webPlayer = new PlayerManager();
     var progresBar = 0;
     const progresBarUI =  document.getElementById("progressBar");
+
+    var box = document.getElementById( 'playPauseButton' );
+    box.style.visibility= "hidden";
+    box.addEventListener('click', (e)=>{
+        playMessage("Play");
+        box.style.visibility= "hidden";
+    })
     
     //to handle received message coming from worker
     //increase proggres bar or decode audio
     const handlers = {
         incProgress,
         decodeAudio,
+        endVideo,
     };
     
     //to inc progress bar
     function incProgress( ) {
-        progresBar=progresBar+0.5;
+        progresBar=progresBar+1;
         // bar1.set(progresBar);
-        if(progresBar==99.5){
+        if(progresBar==100){
              hideProgressBar();
-             var box = document.getElementById( 'playPauseButton' );
              box.style.visibility = "visible";
              progresBar=0;
         }else if(progresBar<100){
@@ -202,6 +209,14 @@ export function main(){
         }else{
          //nothing   
         }    
+    }
+
+    function endVideo(){
+        displayPlaybutton();
+    }
+
+    function displayPlaybutton(){
+        box.style.visibility = "visible";
     }
 
     function updateProgressBar( fraction ) {

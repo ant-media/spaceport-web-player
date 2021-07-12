@@ -82,10 +82,10 @@ Volumetric Video Industry is growing and 6Dof videos are being great tools for c
 
 Spaceport offers an opportunity to watch volumetric videos on web players without VR devices. You can set your view with mouse/touch events and continue to watch the videos.
 
-## You can access [Spaceport Volumetric Web Player from here](https://ant-media.github.io/spaceport-web-player/spaceport_web_player.html).
+## You can access [Spaceport Volumetric Web Player from here](https://ant-media.github.io/spaceport-web-player/index.html).
 
 <div align="center">
-<a href="https://ant-media.github.io/spaceport-web-player/spaceport_web_player.html">
+<a href="https://ant-media.github.io/spaceport-web-player/index.html">
     <img src="https://user-images.githubusercontent.com/20575896/124123424-fcaf9800-da7f-11eb-9d19-0f4b50e5a410.gif" alt="Antmedia" text-align: "center" >
 </a>
 </div>
