@@ -15,6 +15,7 @@ var stage;
 var myNumber, byteArray;
 const allAudio = [];
 var path = "../../sample_videos/demo1/container_";
+var pointCloud = false;
 
 function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
 
@@ -135,19 +136,20 @@ function getVolumetricContainer(testCanvas){
     	offset=offset+8;
     	
 		var drcMesh = data.slice(offset,offset+myNumber);
-    	//drcMeshes.push(drcMesh);
-    	offset=offset+myNumber;			
-		var jpgSize = data.slice(offset,offset+8);
-    	offset=offset+8;
-    	var jpgSizeView = new Float64Array(jpgSize);
-    	byteArray = new BigUint64Array(jpgSize);
-    	myNumber = Number(byteArray[0]);
-    	var newTexture =  data.slice(offset,offset+myNumber); 
-    	var textureView = new Uint8Array(newTexture);
-		offset=offset+myNumber;
-		var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
-		var url = URL.createObjectURL(imageBlob);
-		//assume that having 100 frame
+		if(!pointCloud){
+			//drcMeshes.push(drcMesh);
+			offset=offset+myNumber;			
+			var jpgSize = data.slice(offset,offset+8);
+			offset=offset+8;
+			var jpgSizeView = new Float64Array(jpgSize);
+			byteArray = new BigUint64Array(jpgSize);
+			myNumber = Number(byteArray[0]);
+			var newTexture =  data.slice(offset,offset+myNumber); 
+			var textureView = new Uint8Array(newTexture);
+			offset=offset+myNumber;
+			var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
+			var url = URL.createObjectURL(imageBlob);
+					//assume that having 100 frame
 		if(iterContaier%2==0){
 			postMessage({
 				type: 'incProgress',
@@ -161,10 +163,54 @@ function getVolumetricContainer(testCanvas){
 		// 	audata: audioData,
 		// 	});
 		bitmapTextureLoader(url,drcMesh);	
-		
+		}else{
+			console.log("point cloud");
+			if(iterContaier%2==0){
+				postMessage({
+					type: 'incProgress',
+					});
+			}
+			plyDecoder(drcMesh);
+		}
 
 	})
 }
+
+function plyDecoder(drcMesh){
+
+	dracoLoader.decodeDracoFile(drcMesh,function(bufferGeometry){
+	//bufferGeometry.computeFaceNormals();
+	//bufferGeometry.attributes.color.normalized = false;
+
+	
+	
+	const material = new THREE.PointsMaterial( { vertexColors: true ,size: 0.30} );
+
+	
+	var geometry;
+	geometry = new THREE.Points(bufferGeometry, material);
+	geometry = setGeometryPosition(geometry);
+	
+    //var colors = material.color.setRGB(0,0,0);
+	console.log(material.color)
+	console.log(bufferGeometry.attributes.color)
+	//console.log(colors)
+	
+	//group.add(geometry);
+	//console.log(bufferGeometry.geometry.colors[0]);
+	//texture.dispose();
+	//material.dispose();
+	//geometry.geometry.dispose();
+	//geometry.castShadow = true;
+	//geometry.receiveShadow = true;
+	meshes.push(geometry);
+   // scene.add(geometry)
+	iterContaier++;
+	getVolumetricContainer();});
+
+}
+
+
 // texture loader
 function bitmapTextureLoader(url,drcMesh){
 	textureLoader.load(url, function ( imageBitmap ) {
@@ -315,9 +361,15 @@ export function demoChanger(data){
 	if(data.demo=="Demo - I"){
 		numContainer=199;
 		path = "../../sample_videos/demo1/container_";
+		pointCloud=false;
 	}else if(data.demo=="Demo - II"){
 		numContainer=199;
 		path = "../../sample_videos/demo2/container";
+		pointCloud=false;
+	}else if(data.demo=="Demo - III"){
+		numContainer=199
+		path = "../../sample_videos/withoutVoxel/container"
+		pointCloud=true;
 	}
 	getVolumetricContainer();
 	

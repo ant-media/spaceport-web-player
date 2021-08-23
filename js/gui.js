@@ -12,7 +12,7 @@ class threeUI{
 	constructor(worker){
 	
 		const gui = new GUI();
-		const demos = ["Demo - I", "Demo - II" ];
+		const demos = ["Demo - I", "Demo - II", "Demo - III" ];
 		const states = ["Play", "Stop", "Replay"];
 		const stages = ["Empty", "Scene - I"]
 		const demosFolder = gui.addFolder("Demos");
