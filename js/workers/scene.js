@@ -14,8 +14,8 @@ var index = 0;
 var stage;
 var myNumber, byteArray;
 const allAudio = [];
-var path = "../../sample_videos/demo1/container_";
-var pointCloud = false;
+var path = "../../sample_videos/withVoxel/container";
+var pointCloud = true;
 
 function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
 
@@ -164,7 +164,7 @@ function getVolumetricContainer(testCanvas){
 		// 	});
 		bitmapTextureLoader(url,drcMesh);	
 		}else{
-			console.log("point cloud");
+			
 			if(iterContaier%2==0){
 				postMessage({
 					type: 'incProgress',
@@ -184,32 +184,18 @@ function plyDecoder(drcMesh){
 
 	
 	
-	const material = new THREE.PointsMaterial( { vertexColors: true ,size: 0.30} );
+	const material = new THREE.PointsMaterial( { vertexColors: true ,size: 0.40} );
 
 	
 	var geometry;
 	geometry = new THREE.Points(bufferGeometry, material);
 	geometry = setGeometryPosition(geometry);
-	
-    //var colors = material.color.setRGB(0,0,0);
-	console.log(material.color)
-	console.log(bufferGeometry.attributes.color)
-	//console.log(colors)
-	
-	//group.add(geometry);
-	//console.log(bufferGeometry.geometry.colors[0]);
-	//texture.dispose();
-	//material.dispose();
-	//geometry.geometry.dispose();
-	//geometry.castShadow = true;
-	//geometry.receiveShadow = true;
 	meshes.push(geometry);
    // scene.add(geometry)
 	iterContaier++;
 	getVolumetricContainer();});
 
 }
-
 
 // texture loader
 function bitmapTextureLoader(url,drcMesh){
@@ -359,18 +345,25 @@ export function stateChanger(data){
 export function demoChanger(data){
 	resetStream();
 	if(data.demo=="Demo - I"){
+		path = "../../sample_videos/withVoxel/container"
+		pointCloud=true;
 		numContainer=199;
-		path = "../../sample_videos/demo1/container_";
-		pointCloud=false;
+		
 	}else if(data.demo=="Demo - II"){
 		numContainer=199;
 		path = "../../sample_videos/demo2/container";
 		pointCloud=false;
 	}else if(data.demo=="Demo - III"){
 		numContainer=199
-		path = "../../sample_videos/withoutVoxel/container"
+		path = "../../sample_videos/noVoxel/container"
 		pointCloud=true;
+	}else if(data.demo=="Demo - IV"){
+		numContainer=199
+		path = "../../sample_videos/demo1/container_";
+		pointCloud=false;
 	}
+
+
 	getVolumetricContainer();
 	
 }
