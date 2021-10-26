@@ -8,9 +8,22 @@ body {
 	overscroll-behavior: none;
 }
 
-a {
-	color: #ff0;
-	text-decoration: none;
+
+#message {
+	color: #ff0000;
+	display: none;
+}
+
+#message > a {
+	color: #ff0000;
+}
+
+#container {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	width: 100%;
+	height: 100%;
 }
 
 a:hover {
