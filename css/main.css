@@ -1,12 +1,14 @@
-body {
-	margin: 0;
-	background-color: #000;
-	color: #fff;
-	font-family: Monospace;
-	font-size: 13px;
-	line-height: 24px;
-	overscroll-behavior: none;
+
+
+a {
+	color: #ff0;
+	text-decoration: none;
 }
+
+a {
+	color: #e21717;
+}
+
 
 
 #message {
@@ -51,7 +53,7 @@ canvas {
 	-ms-user-select: none;
 	user-select: none;
 	pointer-events: none;
-	z-index: 1; /* TODO Solve this in HTML */
+	z-index: 8; /* TODO Solve this in HTML */
 }
 
 a, button, input, select {
@@ -79,7 +81,7 @@ a, button, input, select {
 	background: rgba(0,0,0,0.7);
 }
 
-	#overlay button {
+#overlay button {
 		background: #ffffff;
 		border: 0;
 		color: #000000;
@@ -146,15 +148,24 @@ svg#play {
 
  #backgroundplaceholder{
 	/* background-color: black;  */
-  background-color: white; 
+  background-color: black; 
   /* padding: 12em; */
   /* margin-left: 30%; */
   width:100%;
   height:100%;
 }
+
+#canvasPlaceHolder{
+	position: absolute;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+}
 /* the button's base size, shape, appearance */
 #playPauseButton{
+	/* position: relative; */
 	position: absolute;
+	z-index:2;
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
@@ -184,6 +195,7 @@ outline:none;
 /* the button's top layer: size, shape, appearance */
 #playPauseButton:before {
 content: "";
+
 position: absolute;
 top: 1.5em;
  /* for visual centering */

@@ -2,9 +2,11 @@
   font-size: 18px;
   line-height: 30px;
   width: 796px;
+  z-index: -1;
 }
 
 .title {
   font-size: 96px;
   margin: 0;
+  z-index: -1;
 }

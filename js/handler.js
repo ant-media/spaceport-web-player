@@ -5,7 +5,7 @@ class PlayerManager{
     constructor( ) {
         this.errorMessage = document.getElementById( 'message' );
         this.offscreencanvas = document.getElementById( 'offscreencanvas' );
-        this. width = offscreencanvas.clientWidth;
+        this.width = offscreencanvas.clientWidth;
         this.height = offscreencanvas.clientHeight;
         this.pixelRatio = window.devicePixelRatio;
         // offscreen canvas
@@ -179,6 +179,8 @@ export function main(){
     const webPlayer = new PlayerManager();
     var progresBar = 0;
     const progresBarUI =  document.getElementById("progressBar");
+
+//PLAY PAUSE
 
     var box = document.getElementById( 'playPauseButton' );
     box.style.visibility= "hidden";

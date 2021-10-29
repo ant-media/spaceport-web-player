@@ -16,18 +16,21 @@ const volume = document.querySelector('.volume');
 const volumeProgress = document.querySelector('.volume-progress');
 const volumeProgressBar = document.querySelector('.volume-progress-filled');
 const playerHover = document.querySelector('.player-overlay');
+const playerContainer = document.querySelector('.player-container');
+const offscreencanvas = document.querySelector('#offscreencanvas');
 
 /**
 // global functions
 */
 function pauseVideo() {
-  video.pause();
+  console.log("video");
   pause.hidden = true;
   play.hidden = false;
 }
 
 function playVideo() {
-  video.play();
+  //video.play();
+  console.log("video play!");
   play.hidden = true;
   pause.hidden = false;
 }
@@ -101,11 +104,12 @@ function reduceVideo() {
 // show or hide controls
  */
 let timeout = 0;
-playerHover.addEventListener('mousemove', () => {
+offscreencanvas.addEventListener('mousemove', () => {
   clearTimeout(timeout);
-  playerHover.style.opacity = 1;
+  console.log("make opacity 1");
+  playerContainer.style.opacity = 1;
   timeout = setTimeout(function () {
-    playerHover.style.opacity = 0;
+    playerContainer.style.opacity = 0;
   }, 3000);
 });
 /**
