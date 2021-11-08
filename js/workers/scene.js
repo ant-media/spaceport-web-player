@@ -14,13 +14,12 @@ var index = 0;
 var stage;
 var myNumber, byteArray;
 const allAudio = [];
-var path = "../../sample_videos/withVoxel/container";
-var pointCloud = true;
+var path;
+var pointCloud = false;
 
 
 
-function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
-
+function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement , videoSrc) {
 	//camera
 	camera = new THREE.PerspectiveCamera(40, width/height, 1, 250);
 	camera.position.set(0, 50, 200);
@@ -56,7 +55,12 @@ function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement
 	initLoaders();
     //initStage();
 	animate();
+	setPath(videoSrc)
 	getVolumetricContainer(testCanvas);
+}
+
+function setPath(videoSrc){
+	path = videoSrc;
 }
 
 function initLoaders(){
@@ -383,17 +387,15 @@ export function stageChanger(data){
 }
 
 export function skipVideo(data){
-	console.log(data.skip);
 	PlayButton=false;
 	scene.remove(meshes[index-1]);
 	index = data.skip;
-	console.log("received frame from index.js",data.skip);
+	
 	if(index<0)
 	index=0
 	//hardcoded
 	if(index>190){
 		index=0
-		console.log(index);
 	}
 }
 

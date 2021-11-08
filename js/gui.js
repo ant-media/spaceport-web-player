@@ -1,8 +1,9 @@
 import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/libs/dat.gui.module.js';
 
 var newWorker;
+var videoSrc
 const guiController = {
-	Stream : "Demo - I",
+	Stream : videoSrc,
 	State  : "Stop",
 	Stage  : "Empty",
 	Volume : 0.2
@@ -17,7 +18,7 @@ class threeUI{
 		const stages = ["Empty", "Scene - I"]
 		const demosFolder = gui.addFolder("Demos");
 		const demoCtrl = demosFolder.add( guiController, 'Stream' ).options(demos);
-
+        console.log("const test");
 		demoCtrl.onChange( function (){
 				worker.postMessage({
 				type  : 'gui',
@@ -66,7 +67,7 @@ export function playMessage(name){
 	    newWorker.postMessage({
 		type  : 'gui',
 		panel : 'states',
-		demo  : guiController.Stream,
+		demo  : videoSrc,
 		state : name,
 		stage : guiController.Stage,
 	});
@@ -84,8 +85,9 @@ export function skip(seconds){
 });
 }
 
-export function UI(worker){
+export function UI(worker, url){
 	newWorker = worker;
+	videoSrc = url;
 	//let UI = new threeUI(worker);
 }
 

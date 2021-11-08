@@ -2,8 +2,10 @@
 import { UI, playMessage } from './gui.js';
 import { timeUpdate,makeVisibleInfo } from './index.js';
 
+var videoUrl;
 var box = document.getElementById( 'playPauseButton' );
 var bufferAnm = document.getElementById( 'buffer' );
+var src = document.getElementById( 'src' );
 const playerContainer = document.querySelector('.player-container');
 
 class PlayerManager{
@@ -43,6 +45,7 @@ class PlayerManager{
         type: 'start',
         canvas: this.offscreen,
         canvasId: this.proxy.id,
+        src: videoUrl,
     }, [ this.offscreen ] );
         } 
         else {
@@ -171,16 +174,20 @@ function filteredKeydownEventHandler(event, sendFn) {
 }
 
 export function main(){
-    // var progressBarDiv;
-	// 	progressBarDiv = document.createElement( 'div' );
-	// 	progressBarDiv.innerText = "Loading...";
-	// 	progressBarDiv.style.fontSize = "3em";
-	// 	progressBarDiv.style.color = "#888";
-	// 	progressBarDiv.style.display = "block";
-	// 	progressBarDiv.style.position = "absolute";
-	// 	progressBarDiv.style.top = "50%";
-	// 	progressBarDiv.style.width = "100%";
-	// 	progressBarDiv.style.textAlign = "center";
+    
+    videoUrl = src.innerHTML.substring(src.innerHTML.indexOf(':') + 1); // 01-2020
+    console.log(videoUrl);
+    var progressBarDiv;
+		progressBarDiv = document.createElement( 'div' );
+		// progressBarDiv.innerText = "Loading...";
+		progressBarDiv.style.fontSize = "3em";
+		progressBarDiv.style.color = "#888";
+		progressBarDiv.style.display = "block";
+		progressBarDiv.style.position = "absolute";
+		progressBarDiv.style.top = "50%";
+		progressBarDiv.style.width = "100%";
+		progressBarDiv.style.textAlign = "center";
+        progressBarDiv.style.zIndex = 3;
 
 
     const webPlayer = new PlayerManager();
@@ -204,14 +211,15 @@ export function main(){
         progresBar=progresBar+1;
         // bar1.set(progresBar);
         if(progresBar==100){
-            //  hideProgressBar();
+             hideProgressBar();
             //  bufferAnm.style.visibility = "hidden";
              box.style.visibility = "visible";
              bufferAnm.style.visibility = "hidden";
              progresBar=0;
+
         }else if(progresBar<100){
-            // showProgressBar();
-            // updateProgressBar( progresBar );    
+            showProgressBar();
+            updateProgressBar( progresBar );    
         }else{
          //nothing   
         }    
@@ -236,15 +244,16 @@ export function main(){
     }
 
     function updateProgressBar( fraction ) {
-        // progressBarDiv.innerText = 'Loading... ' + fraction;
+        progressBarDiv.innerText =  fraction;
     }
 
     function hideProgressBar() {
-        // document.body.removeChild( progressBarDiv );
+        document.body.removeChild( progressBarDiv );
+        progressBarDiv.style.zIndex=0;
     }
 
     function showProgressBar() {
-        // document.body.appendChild( progressBarDiv );
+        document.body.appendChild( progressBarDiv );
     }
         
     //not possible to decode audio on workers side.
@@ -269,7 +278,7 @@ export function main(){
         }
     };
 
-    UI( webPlayer.getWorker() );
+    UI( webPlayer.getWorker(), videoUrl);
 }
 
 

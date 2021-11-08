@@ -68,7 +68,7 @@ function start(data) {
   proxy.ownerDocument = proxy; // HACK!
   self.document = {};  // HACK!
   //data.canvas look unnecessary
-  init( data.drawingSurface, data.width, data.height, data.pixelRatio, data.path, data.canvas, proxy );
+  init( data.drawingSurface, data.width, data.height, data.pixelRatio, data.path, data.canvas, proxy, data.src );
 
 }
 
@@ -77,10 +77,7 @@ function makeProxy(data) {
 }
 
 function ui(data){
-  //console.log("ui event called");
-  //console.log(data.play)
   playVideo(data.play);
-  //playVideo(data.play)
 }
 
 //to handle gui class 

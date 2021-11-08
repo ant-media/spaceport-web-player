@@ -1,5 +1,4 @@
 import { UI, playMessage, skip} from './gui.js';
-
 // Dom elements, global constants
 const backward = document.querySelector('.backward');
 const currentTime = document.querySelector('.current-time');
@@ -22,7 +21,6 @@ const playerContainer = document.querySelector('.player-container');
 const offscreencanvas = document.querySelector('#offscreencanvas');
 var playBox = document.getElementById( 'playPauseButton' );
 var bufferAnm = document.getElementById('buffer');
-
 var currentVideoTime;
 var videoPaused=true;
 /**
@@ -37,7 +35,6 @@ function pauseVideo() {
 
 function playVideo() {
   //video.play();
-  console.log("video play!");
   play.hidden = true;
   pause.hidden = false;
   playMessage("Play");
@@ -45,18 +42,14 @@ function playVideo() {
 }
 
 function backwardVideo() {
- 
   currentVideoTime -= 15;
-  console.log("current time ", currentVideoTime);
   skip(currentVideoTime);
   playVideo();
 
 }
 
 function forwardVideo() {
-  
   currentVideoTime += 15;
-  console.log("current time", currentVideoTime)
   skip(currentVideoTime);
   playVideo();
 
@@ -128,7 +121,8 @@ function makeInvisibleInfo(){
 
 export function makeVisibleInfo(){
   //playBox.style.visibility= "visible";
-  informationContainer.style.zIndex=1;
+ // informationContainer.style.zIndex=1;
+ pauseVideo();
 }
 
 export function timeUpdate(data){
@@ -148,9 +142,6 @@ export function timeUpdate(data){
     // }
    
 }
-/**
-//
-*/
 
 /**
 // show or hide controls
