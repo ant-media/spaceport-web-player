@@ -40,7 +40,7 @@
   flex-direction: column;
   justify-content: center;
   /* make overlay invisible */
-  z-index: -1;
+  z-index: 1;
 }
 
 .player-container {
@@ -66,7 +66,7 @@
 
 .video-progress-filled {
   width: 0;
-  background-color: white;
+  background-color: red;
 }
 
 .player-controls {
@@ -117,3 +117,60 @@
   display: flex;
   align-items: center;
 }
+
+#test{
+ position: absolute;
+ z-index: 2;
+ width:200px;
+
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%); 
+ transform-origin: 50% 50%;
+  
+ align-items: center;
+ justify-content: center;
+ display: flex;
+
+
+}
+
+#buffer {
+	/* justify-content: space-around; */
+	position: relative;
+	z-index: 10;
+	/* left: 50%;
+	top: 50%; */
+	transform: translate(-50%, -50%); 
+	transform-origin: 50% 50%;
+	/* margin-left: auto;
+	margin-top: auto; */
+	/* text-align: center;
+	place-items: center; */
+	/* display: grid; */
+  /* margin: auto; */
+  /* /* margin-left: auto; */
+  /* margin-right: auto; */
+  margin: 0 auto;
+  margin-top: 0 atuo;
+  /* margin-top: 0 auto; */
+  padding: 10px;
+  /* margin-bottom: auto;  */
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	border: 8px solid;
+  
+   display: block;
+    /* horizontal-aling: middle; */ 
+	border-color: white rgba(255,255,255,0.1) rgba(255,255,255,0.1);
+	animation: spin 1s ease infinite;
+	
+   
+  }
+  
+  @keyframes spin {
+	0% { transform: rotate(0deg) }
+	
+	100% { transform: rotate(359deg) }
+  }

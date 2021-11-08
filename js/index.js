@@ -1,3 +1,5 @@
+import { UI, playMessage, skip} from './gui.js';
+
 // Dom elements, global constants
 const backward = document.querySelector('.backward');
 const currentTime = document.querySelector('.current-time');
@@ -18,14 +20,19 @@ const volumeProgressBar = document.querySelector('.volume-progress-filled');
 const playerHover = document.querySelector('.player-overlay');
 const playerContainer = document.querySelector('.player-container');
 const offscreencanvas = document.querySelector('#offscreencanvas');
+var playBox = document.getElementById( 'playPauseButton' );
+var bufferAnm = document.getElementById('buffer');
 
+var currentVideoTime;
+var videoPaused=true;
 /**
 // global functions
 */
 function pauseVideo() {
-  console.log("video");
+  //console.log("video stop");
   pause.hidden = true;
   play.hidden = false;
+  playMessage("Stop")
 }
 
 function playVideo() {
@@ -33,14 +40,26 @@ function playVideo() {
   console.log("video play!");
   play.hidden = true;
   pause.hidden = false;
+  playMessage("Play");
+  makeInvisibleInfo();
 }
 
 function backwardVideo() {
-  video.currentTime -= 5;
+ 
+  currentVideoTime -= 15;
+  console.log("current time ", currentVideoTime);
+  skip(currentVideoTime);
+  playVideo();
+
 }
 
 function forwardVideo() {
-  video.currentTime += 5;
+  
+  currentVideoTime += 15;
+  console.log("current time", currentVideoTime)
+  skip(currentVideoTime);
+  playVideo();
+
 }
 
 function showSilenceIcon() {
@@ -53,11 +72,16 @@ function showVolumeIcon() {
   silence.hidden = true;
 }
 
-function videoTime() {
-  let currentMinutes = Math.floor(video.currentTime / 60);
-  let currentSeconds = Math.floor(video.currentTime - currentMinutes * 60);
-  let durationMinutes = Math.floor(video.duration / 60);
-  let durationSeconds = Math.floor(video.duration - durationMinutes * 60);
+function videoTime(data) {
+  data=data/10;
+  let currentMinutes = Math.floor(data / 60);
+  let currentSeconds = Math.floor(data % 60);
+  // let durationMinutes = Math.floor(video.duration / 60);
+  // let durationSeconds = Math.floor(video.duration - durationMinutes * 60);
+  //hardcoded
+  let durationMinutes = 0; //0 minute
+  let durationSeconds = 20; //20 seconds
+  //console.log("video minute ", currentMinutes, "video second", currentSeconds);
 
   currentTime.innerHTML = `${currentMinutes}:${
     currentSeconds < 10 ? `0${currentSeconds}` : currentSeconds
@@ -96,6 +120,34 @@ function reduceVideo() {
   }
 }
 
+function makeInvisibleInfo(){
+  playBox.style.visibility= "hidden";
+  // bufferAnm.style.visibility= "hidden";
+  informationContainer.style.zIndex=-1;
+}
+
+export function makeVisibleInfo(){
+  //playBox.style.visibility= "visible";
+  informationContainer.style.zIndex=1;
+}
+
+export function timeUpdate(data){
+    //console.log("somethings happened on video progress bar");
+    currentVideoTime = data;
+    videoTime(data);
+    // progress bar
+    data=data/10;
+    //harcoded ll be change in the future. i hope.
+    var duration=20
+    const percentage = (data / duration) * 100;
+    //console.log("percentage", percentage);
+    progressBar.style.width = `${percentage}%`;
+    // if (video.currentTime === video.duration) {
+    //   pause.hidden = true;
+    //   play.hidden = false;
+    // }
+   
+}
 /**
 //
 */
@@ -106,7 +158,7 @@ function reduceVideo() {
 let timeout = 0;
 offscreencanvas.addEventListener('mousemove', () => {
   clearTimeout(timeout);
-  console.log("make opacity 1");
+  //console.log("make opacity 1");
   playerContainer.style.opacity = 1;
   timeout = setTimeout(function () {
     playerContainer.style.opacity = 0;
@@ -124,19 +176,6 @@ video.addEventListener('loadedmetadata', () => {
   volumeProgressBar.style.width = '50%';
 });
 
-video.addEventListener('timeupdate', () => {
-  // video current time & video duration time
-  videoTime();
-
-  // progress bar
-  const percentage = (video.currentTime / video.duration) * 100;
-  progressBar.style.width = `${percentage}%`;
-
-  if (video.currentTime === video.duration) {
-    pause.hidden = true;
-    play.hidden = false;
-  }
-});
 
 video.addEventListener('volumechange', () => {
   if (video.volume > 0) {
@@ -151,8 +190,14 @@ video.addEventListener('volumechange', () => {
 
 // progress bar functionality
 progress.addEventListener('click', (event) => {
-  const progressTime = (event.offsetX / progress.offsetWidth) * video.duration;
-  video.currentTime = progressTime;
+  console.log("clicked video progress bar!");
+  //hardcoded
+  const progressTime = (event.offsetX / progress.offsetWidth) * 20*10;
+   var setTime = Math.round(progressTime);
+   console.log(setTime);
+   currentVideoTime = setTime;
+   skip(currentVideoTime);
+   playVideo();
 });
 
 // play functionality
@@ -239,9 +284,11 @@ document.addEventListener('fullscreenchange', () => {
 document.addEventListener('keydown', (event) => {
   // space bar - play/plause
   if (event.code === 'Space') {
-    if (video.paused) {
+    if (videoPaused) {
+      videoPaused=false;
       playVideo();
     } else {
+      videoPaused=true;
       pauseVideo();
     }
   }
@@ -251,3 +298,10 @@ document.addEventListener('keydown', (event) => {
     expandVideo();
   }
 });
+
+
+playBox.addEventListener('click', (e)=>{
+  makeInvisibleInfo();
+  playVideo();
+})
+

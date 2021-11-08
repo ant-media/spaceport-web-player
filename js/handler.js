@@ -1,5 +1,10 @@
 
 import { UI, playMessage } from './gui.js';
+import { timeUpdate,makeVisibleInfo } from './index.js';
+
+var box = document.getElementById( 'playPauseButton' );
+var bufferAnm = document.getElementById( 'buffer' );
+const playerContainer = document.querySelector('.player-container');
 
 class PlayerManager{
     constructor( ) {
@@ -166,32 +171,29 @@ function filteredKeydownEventHandler(event, sendFn) {
 }
 
 export function main(){
-    var progressBarDiv;
-		progressBarDiv = document.createElement( 'div' );
-		progressBarDiv.innerText = "Loading...";
-		progressBarDiv.style.fontSize = "3em";
-		progressBarDiv.style.color = "#888";
-		progressBarDiv.style.display = "block";
-		progressBarDiv.style.position = "absolute";
-		progressBarDiv.style.top = "50%";
-		progressBarDiv.style.width = "100%";
-		progressBarDiv.style.textAlign = "center";
+    // var progressBarDiv;
+	// 	progressBarDiv = document.createElement( 'div' );
+	// 	progressBarDiv.innerText = "Loading...";
+	// 	progressBarDiv.style.fontSize = "3em";
+	// 	progressBarDiv.style.color = "#888";
+	// 	progressBarDiv.style.display = "block";
+	// 	progressBarDiv.style.position = "absolute";
+	// 	progressBarDiv.style.top = "50%";
+	// 	progressBarDiv.style.width = "100%";
+	// 	progressBarDiv.style.textAlign = "center";
+
+
     const webPlayer = new PlayerManager();
-    var progresBar = 0;
-    const progresBarUI =  document.getElementById("progressBar");
+     var progresBar = 0;
+    // const progresBarUI =  document.getElementById("progressBar");
 
 //PLAY PAUSE
-
-    var box = document.getElementById( 'playPauseButton' );
     box.style.visibility= "hidden";
-    box.addEventListener('click', (e)=>{
-        playMessage("Play");
-        box.style.visibility= "hidden";
-    })
     
     //to handle received message coming from worker
     //increase proggres bar or decode audio
     const handlers = {
+        videoTimeUpdate,
         incProgress,
         decodeAudio,
         endVideo,
@@ -202,35 +204,47 @@ export function main(){
         progresBar=progresBar+1;
         // bar1.set(progresBar);
         if(progresBar==100){
-             hideProgressBar();
+            //  hideProgressBar();
+            //  bufferAnm.style.visibility = "hidden";
              box.style.visibility = "visible";
+             bufferAnm.style.visibility = "hidden";
              progresBar=0;
         }else if(progresBar<100){
-            showProgressBar();
-            updateProgressBar( progresBar );    
+            // showProgressBar();
+            // updateProgressBar( progresBar );    
         }else{
          //nothing   
         }    
     }
 
+    function videoTimeUpdate(data){
+       
+        // console.log(data.videoTime);
+        // var minute = Math. floor(data.videoTime/60); //
+        // var second = data.videoTime%60/10;
+        // console.log("video minute ", minute, "video second", second);
+        timeUpdate(data.videoTime);
+    }
+
     function endVideo(){
-        displayPlaybutton();
+        makeVisibleInfo();
     }
 
     function displayPlaybutton(){
+      //  bufferAnm.style.visibility = "hidden";
         box.style.visibility = "visible";
     }
 
     function updateProgressBar( fraction ) {
-        progressBarDiv.innerText = 'Loading... ' + fraction;
+        // progressBarDiv.innerText = 'Loading... ' + fraction;
     }
 
     function hideProgressBar() {
-        document.body.removeChild( progressBarDiv );
+        // document.body.removeChild( progressBarDiv );
     }
 
     function showProgressBar() {
-        document.body.appendChild( progressBarDiv );
+        // document.body.appendChild( progressBarDiv );
     }
         
     //not possible to decode audio on workers side.
@@ -245,11 +259,14 @@ export function main(){
     
     webPlayer.getWorker().onmessage = function ( message ) {
         var data = message.data;
+        
         var messageType = handlers[data.type];
         if(!messageType){
             console.log("message handle error!");
         }
-        messageType(data)
+        else{
+            messageType(data)
+        }
     };
 
     UI( webPlayer.getWorker() );

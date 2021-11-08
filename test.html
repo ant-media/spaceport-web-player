@@ -14,15 +14,22 @@
 			<p id="message">Your browser does not support OffscreenCanvas. Check the browser support <a href="https://caniuse.com/#feat=offscreencanvas" target="_blank" rel="noopener noreferrer">here</a></p>
 		</div>
 
-    
+    <div id="bufferContainer">
+     
+    </div>
+
+    <div id="test">
+      <div id="buffer"></div>
+    </div>
     
 		<div class="canvasPlaceHolder">
-			<canvas id="offscreencanvas"></canvas>
+		<canvas id="offscreencanvas"></canvas>
 		</div>
 	
-        <div id="backgroundplaceholder">
-            <button id="playPauseButton"></button>
-            </div>
+    <button id="playPauseButton"></button>
+   
+
+     
     
 
         <main class="wrapper">
@@ -116,12 +123,10 @@
               </div>
             </div>
 
-
-
 		<div id="progressBar"></div>
 		<script type="text/javascript" src="./js/main.js"></script>
 		<script type="text/javascript" src="./js/loading-bar.js"></script>
-        <script src="./js/index.js"></script>
+    <script type="module"  src="./js/index.js"></script>
 		<script type="module">
 		import { main } from './js/handler.js';
 		main();

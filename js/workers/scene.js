@@ -17,6 +17,8 @@ const allAudio = [];
 var path = "../../sample_videos/withVoxel/container";
 var pointCloud = true;
 
+
+
 function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
 
 	//camera
@@ -79,13 +81,17 @@ function animate() {
 				// meshes[index-1].texture.dispose();
 				// console.log("texture dispose");
 				 meshes[index-1].material.dispose();
-                 meshes[index-1].geometry.dispose();;	
+                 meshes[index-1].geometry.dispose();	
 				 scene.remove(meshes[index-1]);		
 				// delete meshes[index-1]	
 				// meshes[index-1]=[]	
 				};
 				 if(PlayButton==true){
 				    scene.add(meshes[index]);
+					postMessage({
+						type: 'videoTimeUpdate',
+						videoTime: index,
+						});
 					index++;
 					interval = 100;
 					if(index>=numContainer){
@@ -317,10 +323,7 @@ function onWindowResize() {
 export function playVideo(isPlay){
 	
 	if(isPlay=="true"){
-		
 		PlayButton=true;
-
-
 	}
 
 }
@@ -377,6 +380,21 @@ export function stageChanger(data){
 		stage2();
 	}
 
+}
+
+export function skipVideo(data){
+	console.log(data.skip);
+	PlayButton=false;
+	scene.remove(meshes[index-1]);
+	index = data.skip;
+	console.log("received frame from index.js",data.skip);
+	if(index<0)
+	index=0
+	//hardcoded
+	if(index>190){
+		index=0
+		console.log(index);
+	}
 }
 
 function resetStream(){

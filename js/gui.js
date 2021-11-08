@@ -29,7 +29,7 @@ class threeUI{
 		});
 
 		const statesFolder = gui.addFolder("States");
-		statesFolder.open();
+		statesFolder.close();
 		function createStateCallback( name ) {
 			guiController[ name ] = function () {
 				playMessage(name);
@@ -63,9 +63,7 @@ class threeUI{
 }
 
 export function playMessage(name){
-	    var box = document.getElementById( 'playPauseButton' );
-       box.style.visibility= "hidden";
-	   newWorker.postMessage({
+	    newWorker.postMessage({
 		type  : 'gui',
 		panel : 'states',
 		demo  : guiController.Stream,
@@ -74,9 +72,21 @@ export function playMessage(name){
 	});
 }
 
+export function skip(seconds){
+	console.log("skip called");
+	newWorker.postMessage({
+	type  : 'gui',
+	panel : 'skip',
+	demo  : guiController.Stream,
+	state : 'Play',
+	stage : guiController.Stage,
+	skip  : seconds,
+});
+}
+
 export function UI(worker){
 	newWorker = worker;
-	let UI = new threeUI(worker);
+	//let UI = new threeUI(worker);
 }
 
 
