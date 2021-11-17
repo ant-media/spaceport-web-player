@@ -14,11 +14,12 @@ var index = 0;
 var stage;
 var myNumber, byteArray;
 const allAudio = [];
-var path = "../../sample_videos/withVoxel/container";
-var pointCloud = true;
+var path;
+var pointCloud = false;
 
-function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement ) {
 
+
+function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement , videoSrc) {
 	//camera
 	camera = new THREE.PerspectiveCamera(40, width/height, 1, 250);
 	camera.position.set(0, 50, 200);
@@ -54,7 +55,12 @@ function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement
 	initLoaders();
     //initStage();
 	animate();
+	setPath(videoSrc)
 	getVolumetricContainer(testCanvas);
+}
+
+function setPath(videoSrc){
+	path = videoSrc;
 }
 
 function initLoaders(){
@@ -79,13 +85,17 @@ function animate() {
 				// meshes[index-1].texture.dispose();
 				// console.log("texture dispose");
 				 meshes[index-1].material.dispose();
-                 meshes[index-1].geometry.dispose();;	
+                 meshes[index-1].geometry.dispose();	
 				 scene.remove(meshes[index-1]);		
 				// delete meshes[index-1]	
 				// meshes[index-1]=[]	
 				};
 				 if(PlayButton==true){
 				    scene.add(meshes[index]);
+					postMessage({
+						type: 'videoTimeUpdate',
+						videoTime: index,
+						});
 					index++;
 					interval = 100;
 					if(index>=numContainer){
@@ -317,10 +327,7 @@ function onWindowResize() {
 export function playVideo(isPlay){
 	
 	if(isPlay=="true"){
-		
 		PlayButton=true;
-
-
 	}
 
 }
@@ -377,6 +384,19 @@ export function stageChanger(data){
 		stage2();
 	}
 
+}
+
+export function skipVideo(data){
+	PlayButton=false;
+	scene.remove(meshes[index-1]);
+	index = data.skip;
+	
+	if(index<0)
+	index=0
+	//hardcoded
+	if(index>190){
+		index=0
+	}
 }
 
 function resetStream(){

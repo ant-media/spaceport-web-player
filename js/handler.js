@@ -1,11 +1,18 @@
 
 import { UI, playMessage } from './gui.js';
+import { timeUpdate,makeVisibleInfo } from './index.js';
+
+var videoUrl;
+var box = document.getElementById( 'playPauseButton' );
+var bufferAnm = document.getElementById( 'buffer' );
+var src = document.getElementById( 'src' );
+const playerContainer = document.querySelector('.player-container');
 
 class PlayerManager{
     constructor( ) {
         this.errorMessage = document.getElementById( 'message' );
         this.offscreencanvas = document.getElementById( 'offscreencanvas' );
-        this. width = offscreencanvas.clientWidth;
+        this.width = offscreencanvas.clientWidth;
         this.height = offscreencanvas.clientHeight;
         this.pixelRatio = window.devicePixelRatio;
         // offscreen canvas
@@ -38,6 +45,7 @@ class PlayerManager{
         type: 'start',
         canvas: this.offscreen,
         canvasId: this.proxy.id,
+        src: videoUrl,
     }, [ this.offscreen ] );
         } 
         else {
@@ -166,9 +174,12 @@ function filteredKeydownEventHandler(event, sendFn) {
 }
 
 export function main(){
+    
+    videoUrl = src.innerHTML.substring(src.innerHTML.indexOf(':') + 1); // 01-2020
+    console.log(videoUrl);
     var progressBarDiv;
 		progressBarDiv = document.createElement( 'div' );
-		progressBarDiv.innerText = "Loading...";
+		// progressBarDiv.innerText = "Loading...";
 		progressBarDiv.style.fontSize = "3em";
 		progressBarDiv.style.color = "#888";
 		progressBarDiv.style.display = "block";
@@ -176,20 +187,20 @@ export function main(){
 		progressBarDiv.style.top = "50%";
 		progressBarDiv.style.width = "100%";
 		progressBarDiv.style.textAlign = "center";
-    const webPlayer = new PlayerManager();
-    var progresBar = 0;
-    const progresBarUI =  document.getElementById("progressBar");
+        progressBarDiv.style.zIndex = 3;
 
-    var box = document.getElementById( 'playPauseButton' );
+
+    const webPlayer = new PlayerManager();
+     var progresBar = 0;
+    // const progresBarUI =  document.getElementById("progressBar");
+
+//PLAY PAUSE
     box.style.visibility= "hidden";
-    box.addEventListener('click', (e)=>{
-        playMessage("Play");
-        box.style.visibility= "hidden";
-    })
     
     //to handle received message coming from worker
     //increase proggres bar or decode audio
     const handlers = {
+        videoTimeUpdate,
         incProgress,
         decodeAudio,
         endVideo,
@@ -201,8 +212,11 @@ export function main(){
         // bar1.set(progresBar);
         if(progresBar==100){
              hideProgressBar();
+            //  bufferAnm.style.visibility = "hidden";
              box.style.visibility = "visible";
+             bufferAnm.style.visibility = "hidden";
              progresBar=0;
+
         }else if(progresBar<100){
             showProgressBar();
             updateProgressBar( progresBar );    
@@ -211,20 +225,31 @@ export function main(){
         }    
     }
 
+    function videoTimeUpdate(data){
+       
+        // console.log(data.videoTime);
+        // var minute = Math. floor(data.videoTime/60); //
+        // var second = data.videoTime%60/10;
+        // console.log("video minute ", minute, "video second", second);
+        timeUpdate(data.videoTime);
+    }
+
     function endVideo(){
-        displayPlaybutton();
+        makeVisibleInfo();
     }
 
     function displayPlaybutton(){
+      //  bufferAnm.style.visibility = "hidden";
         box.style.visibility = "visible";
     }
 
     function updateProgressBar( fraction ) {
-        progressBarDiv.innerText = 'Loading... ' + fraction;
+        progressBarDiv.innerText =  fraction;
     }
 
     function hideProgressBar() {
         document.body.removeChild( progressBarDiv );
+        progressBarDiv.style.zIndex=0;
     }
 
     function showProgressBar() {
@@ -243,14 +268,17 @@ export function main(){
     
     webPlayer.getWorker().onmessage = function ( message ) {
         var data = message.data;
+        
         var messageType = handlers[data.type];
         if(!messageType){
             console.log("message handle error!");
         }
-        messageType(data)
+        else{
+            messageType(data)
+        }
     };
 
-    UI( webPlayer.getWorker() );
+    UI( webPlayer.getWorker(), videoUrl);
 }
 
 

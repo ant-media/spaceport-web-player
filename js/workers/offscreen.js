@@ -1,8 +1,7 @@
 import init from './scene.js';
 import {playVideo} from './scene.js';
 import {EventDispatcher}from 'https://cdn.jsdelivr.net/npm/three@0.121.1/build/three.module.js';
-import {stateChanger, demoChanger, stageChanger} from './scene.js';
-
+import {stateChanger, demoChanger, stageChanger, skipVideo} from './scene.js';
 
 function noop() {
 }
@@ -69,7 +68,7 @@ function start(data) {
   proxy.ownerDocument = proxy; // HACK!
   self.document = {};  // HACK!
   //data.canvas look unnecessary
-  init( data.drawingSurface, data.width, data.height, data.pixelRatio, data.path, data.canvas, proxy );
+  init( data.drawingSurface, data.width, data.height, data.pixelRatio, data.path, data.canvas, proxy, data.src );
 
 }
 
@@ -78,10 +77,7 @@ function makeProxy(data) {
 }
 
 function ui(data){
-  //console.log("ui event called");
-  //console.log(data.play)
   playVideo(data.play);
-  //playVideo(data.play)
 }
 
 //to handle gui class 
@@ -99,6 +95,9 @@ function gui(data){
     case "stages":
       //call stage changer funtion
       stageChanger(data);
+    case "skip":
+      skipVideo(data);
+      console.log("skip video");
       break;
   }
   

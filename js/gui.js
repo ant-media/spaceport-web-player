@@ -1,8 +1,9 @@
 import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/libs/dat.gui.module.js';
 
 var newWorker;
+var videoSrc
 const guiController = {
-	Stream : "Demo - I",
+	Stream : videoSrc,
 	State  : "Stop",
 	Stage  : "Empty",
 	Volume : 0.2
@@ -17,7 +18,7 @@ class threeUI{
 		const stages = ["Empty", "Scene - I"]
 		const demosFolder = gui.addFolder("Demos");
 		const demoCtrl = demosFolder.add( guiController, 'Stream' ).options(demos);
-
+        console.log("const test");
 		demoCtrl.onChange( function (){
 				worker.postMessage({
 				type  : 'gui',
@@ -29,7 +30,7 @@ class threeUI{
 		});
 
 		const statesFolder = gui.addFolder("States");
-		statesFolder.open();
+		statesFolder.close();
 		function createStateCallback( name ) {
 			guiController[ name ] = function () {
 				playMessage(name);
@@ -63,20 +64,31 @@ class threeUI{
 }
 
 export function playMessage(name){
-	    var box = document.getElementById( 'playPauseButton' );
-       box.style.visibility= "hidden";
-	   newWorker.postMessage({
+	    newWorker.postMessage({
 		type  : 'gui',
 		panel : 'states',
-		demo  : guiController.Stream,
+		demo  : videoSrc,
 		state : name,
 		stage : guiController.Stage,
 	});
 }
 
-export function UI(worker){
+export function skip(seconds){
+	console.log("skip called");
+	newWorker.postMessage({
+	type  : 'gui',
+	panel : 'skip',
+	demo  : guiController.Stream,
+	state : 'Play',
+	stage : guiController.Stage,
+	skip  : seconds,
+});
+}
+
+export function UI(worker, url){
 	newWorker = worker;
-	let UI = new threeUI(worker);
+	videoSrc = url;
+	//let UI = new threeUI(worker);
 }
 
 
