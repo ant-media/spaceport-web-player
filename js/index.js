@@ -21,6 +21,7 @@ const playerContainer = document.querySelector('.player-container');
 const offscreencanvas = document.querySelector('#offscreencanvas');
 var playBox = document.getElementById( 'playPauseButton' );
 var bufferAnm = document.getElementById('buffer');
+var bufferCont = document.getElementById('bufferContainer')
 var currentVideoTime;
 var videoPaused=true;
 /**
@@ -115,8 +116,10 @@ function reduceVideo() {
 
 function makeInvisibleInfo(){
   playBox.style.visibility= "hidden";
+  bufferCont.style.zIndex = -2;
   // bufferAnm.style.visibility= "hidden";
   informationContainer.style.zIndex=-1;
+
 }
 
 export function makeVisibleInfo(){

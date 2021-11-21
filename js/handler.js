@@ -196,6 +196,7 @@ export function main(){
 
 //PLAY PAUSE
     box.style.visibility= "hidden";
+    box.style.zIndex = -1;
     
     //to handle received message coming from worker
     //increase proggres bar or decode audio
@@ -214,7 +215,9 @@ export function main(){
              hideProgressBar();
             //  bufferAnm.style.visibility = "hidden";
              box.style.visibility = "visible";
+             box.style.zIndex = 3;
              bufferAnm.style.visibility = "hidden";
+             bufferAnm.style.zIndex = -2;
              progresBar=0;
 
         }else if(progresBar<100){
