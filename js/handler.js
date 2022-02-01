@@ -1,12 +1,24 @@
 
 import { UI, playMessage } from './gui.js';
-import { timeUpdate,makeVisibleInfo } from './index.js';
+import { timeUpdate,makeVisibleInfo, audioTimeUpdate } from './index.js';
 
 var videoUrl;
 var box = document.getElementById( 'playPauseButton' );
 var bufferAnm = document.getElementById( 'buffer' );
 var src = document.getElementById( 'src' );
 const playerContainer = document.querySelector('.player-container');
+
+var source;
+var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+var audio = [];
+var wavBytes = [];
+var audioData;
+var currentTime=0;
+var pausedAt = 0;
+var startedAt = 0;
+var playing = false;
+var offset=0;
+var elapsed;
 
 class PlayerManager{
     constructor( ) {
@@ -237,6 +249,7 @@ export function main(){
         timeUpdate(data.videoTime);
     }
 
+
     function endVideo(){
         makeVisibleInfo();
     }
@@ -261,14 +274,89 @@ export function main(){
         
     //not possible to decode audio on workers side.
     function decodeAudio( data ) {
+        console.log("decoding audio data!");
+        var mainArray = new Uint8Array(0);
         var audioData = data.audata;
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        var sourceTemp = audioCtx.createBufferSource();
-        audioCtx.decodeAudioData(audioData, function(buffer) {
-            allAudio.push(buffer); 
-        });
+        mainArray=audioData;
+        console.log("raw audio data", mainArray); 
+
+        console.log("i got all raw audios from server")
+        const sampleRate = 48000
+        const numChannels = 2 // mono or stereo
+        const isFloat = true  // integer or floating point
+
+        // create WAV header
+        const [type, format] = isFloat ? [Float32Array, 3] : [Uint8Array, 1]
+        const wavHeader = new Uint8Array(buildWaveHeader({
+    numFrames: mainArray.byteLength / type.BYTES_PER_ELEMENT,
+    bytesPerSample: type.BYTES_PER_ELEMENT,
+    sampleRate,
+    numChannels,
+    format
+  }));
+
+        wavBytes = new Uint8Array(wavHeader.length + mainArray.byteLength)
+        wavBytes.set(wavHeader, 0)
+        wavBytes.set(new Uint8Array(mainArray), wavHeader.length)
+        
+        console.log( wavBytes.buffer);
+       
+      
+
+
+        
     }
-    
+
+    function buildWaveHeader(opts) {
+        const numFrames =      opts.numFrames;
+        const numChannels =    opts.numChannels || 2;
+        const sampleRate =     opts.sampleRate || 48000;
+        const bytesPerSample = opts.bytesPerSample || 2;
+        const format =         opts.format
+      
+        const blockAlign = numChannels * bytesPerSample;
+        const byteRate = sampleRate * blockAlign;
+        const dataSize = numFrames * blockAlign;
+      
+        const buffer = new ArrayBuffer(44);
+        const dv = new DataView(buffer);
+      
+        let p = 0;
+      
+        function writeString(s) {
+          for (let i = 0; i < s.length; i++) {
+            dv.setUint8(p + i, s.charCodeAt(i));
+          }
+          p += s.length;
+      }
+      
+        function writeUint32(d) {
+          dv.setUint32(p, d, true);
+          p += 4;
+        }
+      
+        function writeUint16(d) {
+          dv.setUint16(p, d, true);
+          p += 2;
+        }
+      
+        writeString('RIFF');              // ChunkID
+        writeUint32(dataSize + 36);       // ChunkSize
+        writeString('WAVE');              // Format
+        writeString('fmt ');              // Subchunk1ID
+        writeUint32(16);                  // Subchunk1Size
+        writeUint16(format);              // AudioFormat
+        writeUint16(numChannels);         // NumChannels
+        writeUint32(sampleRate);          // SampleRate
+        writeUint32(byteRate);            // ByteRate
+        writeUint16(blockAlign);          // BlockAlign
+        writeUint16(bytesPerSample * 8);  // BitsPerSample
+        writeString('data');              // Subchunk2ID
+        writeUint32(dataSize);            // Subchunk2Size
+      
+        return buffer;
+      }
+
     webPlayer.getWorker().onmessage = function ( message ) {
         var data = message.data;
         
@@ -284,8 +372,66 @@ export function main(){
     UI( webPlayer.getWorker(), videoUrl);
 }
 
+export function playAudio(){
+    if(!playing){
+        playing = true;
+        audioData = wavBytes.buffer;
+        //console.log(audioData)
+        audioCtx.decodeAudioData(audioData.slice(0), function(buffer){
+           
+            offset = pausedAt;
+            console.log("offset => ", offset)
+            if(offset>buffer.duration || offset<0){
+                pausedAt=0
+                startedAt=0;
+                offset=0;
+            }            
+            source = audioCtx.createBufferSource();
+            source.connect(audioCtx.destination);
+            source.buffer = buffer;
+            //console.log(buffer.duration);
+            //console.log("start current time:",currentTime);
+            source.loop=false;
+            source.start(0,offset); 
+            startedAt = audioCtx.currentTime - offset;
+            pausedAt = 0;   
+         //source.loop = false;      
+        },      function(e){ console.log("Error with decoding audio data" + e.err); });
+    }
+    else{
+        return 
+    }
 
+};
 
+export function stopAudio(){
+    elapsed = audioCtx.currentTime - startedAt;
+    console.log("stop audio");
+    console.log("elapsed",elapsed);
+    //console.log("stop currentTime",currentTime);
+    source.disconnect(audioCtx.destination);
+    source.stop(0);
+    pausedAt=elapsed;
+    playing=false;
+    audioTimeUpdate(pausedAt);
+    //currentTime = audioCtx.currentTime;
+    //source.currentTime = 0;
+};
+
+export function changeOffset(timeStamp){
+    offset=offset+timeStamp;
+}
+
+export function skipAudio(newOffset){
+    console.log("forward audio!",newOffset);
+    if(playing){
+        stopAudio();
+        pausedAt=newOffset;
+     } else{
+        audioTimeUpdate(pausedAt);
+         pausedAt=newOffset;
+        }
+    }
 
 
 

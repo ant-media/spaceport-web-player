@@ -1,4 +1,5 @@
 import { UI, playMessage, skip} from './gui.js';
+import {changeOffset, playAudio, stopAudio, skipAudio} from './handler.js';
 // Dom elements, global constants
 const backward = document.querySelector('.backward');
 const currentTime = document.querySelector('.current-time');
@@ -23,6 +24,7 @@ var playBox = document.getElementById( 'playPauseButton' );
 var bufferAnm = document.getElementById('buffer');
 var bufferCont = document.getElementById('bufferContainer')
 var currentVideoTime;
+var currentAudioTime=0;
 var videoPaused=true;
 /**
 // global functions
@@ -32,6 +34,7 @@ function pauseVideo() {
   pause.hidden = true;
   play.hidden = false;
   playMessage("Stop")
+  stopAudio();
 }
 
 function playVideo() {
@@ -39,21 +42,28 @@ function playVideo() {
   play.hidden = true;
   pause.hidden = false;
   playMessage("Play");
+  playAudio();
   makeInvisibleInfo();
+  
 }
 
 function backwardVideo() {
   currentVideoTime -= 15;
+  currentAudioTime -= 3;
   skip(currentVideoTime);
+  skipAudio(currentAudioTime);
+  //stopAudio();
+  //changeOffset(-3);
   playVideo();
-
 }
 
 function forwardVideo() {
   currentVideoTime += 15;
+  currentAudioTime += 3;
   skip(currentVideoTime);
+  skipAudio(currentAudioTime);
+  //changeOffset(3);
   playVideo();
-
 }
 
 function showSilenceIcon() {
@@ -67,7 +77,8 @@ function showVolumeIcon() {
 }
 
 function videoTime(data) {
-  data=data/10;
+  //data / fps
+  data=data/5;
   let currentMinutes = Math.floor(data / 60);
   let currentSeconds = Math.floor(data % 60);
   // let durationMinutes = Math.floor(video.duration / 60);
@@ -129,12 +140,10 @@ export function makeVisibleInfo(){
 }
 
 export function timeUpdate(data){
-    //console.log("somethings happened on video progress bar");
     currentVideoTime = data;
     videoTime(data);
     // progress bar
-    data=data/10;
-    //harcoded ll be change in the future. i hope.
+    data=data/5;
     var duration=20
     const percentage = (data / duration) * 100;
     //console.log("percentage", percentage);
@@ -144,6 +153,11 @@ export function timeUpdate(data){
     //   play.hidden = false;
     // }
    
+}
+
+export function audioTimeUpdate(audioTime){
+  console.log("update audio time", audioTime);
+  currentAudioTime = audioTime;
 }
 
 /**
@@ -158,18 +172,11 @@ offscreencanvas.addEventListener('mousemove', () => {
     playerContainer.style.opacity = 0;
   }, 3000);
 });
-/**
-//
- */
 
-/**
-// video functionality
-*/
 video.addEventListener('loadedmetadata', () => {
   video.volume = 0.5;
   volumeProgressBar.style.width = '50%';
 });
-
 
 video.addEventListener('volumechange', () => {
   if (video.volume > 0) {
@@ -178,9 +185,6 @@ video.addEventListener('volumechange', () => {
     showSilenceIcon();
   }
 });
-/**
-//
-*/
 
 // progress bar functionality
 progress.addEventListener('click', (event) => {
@@ -292,7 +296,6 @@ document.addEventListener('keydown', (event) => {
     expandVideo();
   }
 });
-
 
 playBox.addEventListener('click', (e)=>{
   makeInvisibleInfo();
