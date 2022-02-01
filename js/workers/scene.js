@@ -15,9 +15,7 @@ var stage;
 var myNumber, byteArray;
 const allAudio = [];
 var path;
-var pointCloud = false;
-
-
+var pointCloud = true;
 
 function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement , videoSrc) {
 	//camera
@@ -38,7 +36,6 @@ function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement
 	
 	//controls
 	createControls(camera, inputElement)
-
 	group = new THREE.Group();
 	scene.add( group );
 
@@ -56,7 +53,7 @@ function init( canvas, width, height, pixelRatio, path, testCanvas, inputElement
     //initStage();
 	animate();
 	setPath(videoSrc)
-	getVolumetricContainer(testCanvas);
+	getVolumetricContainer(testCanvas, 40);
 }
 
 function setPath(videoSrc){
@@ -73,9 +70,9 @@ function initLoaders(){
 // display meshes
 //TODO: make stable the intervals
 function animate() {
-	var intervalId; var interval = 80;
+	var intervalId; var interval = 300;
 	
-	startInterval(100);
+	startInterval(300);
 	function startInterval(_interval){
 		
     intervalId = setInterval(function(){
@@ -97,7 +94,7 @@ function animate() {
 						videoTime: index,
 						});
 					index++;
-					interval = 100;
+					interval = 300;
 					if(index>=numContainer){
 						scene.remove(meshes[index-1]);
 						PlayButton	= false;
@@ -119,33 +116,89 @@ function animate() {
   
     }
 }
+
+function decodePointCloudFrame(data, bytePosition){
+	if(iterContaier==100)
+	return;
+	console.log(iterContaier);
+	var offset = bytePosition;
+	var timeStamp = data.slice(offset,offset+8);
+	byteArray = new BigUint64Array(timeStamp);
+	myNumber = Number(byteArray[0]);
+	offset = offset+8;
+	console.log("time stamp", myNumber);
+
+    var dracoSize = data.slice(offset,offset+8);
+    byteArray = new BigUint64Array(dracoSize);
+    myNumber = Number(byteArray[0]);
+    offset=offset+8;
+    console.log("draco size", myNumber);
+
+    var drcMesh = data.slice(offset,offset+myNumber); 
+    offset=offset+myNumber;
+
+    if(iterContaier%1==0){
+        postMessage({
+            type: 'incProgress',});
+            }
+            plyDecoder(data, drcMesh, offset);
+}
+
+function decodeMeshFrame(data, bytePosition){
+    if(iterContaier==100)
+        return;
+    offset=offset+myNumber;
+    var jpgSize = data.slice(offset,offset+8);
+    offset=offset+8;
+    var jpgSizeView = new Float64Array(jpgSize);
+    byteArray = new BigUint64Array(jpgSize);
+    myNumber = Number(byteArray[0]);
+    var newTexture =  data.slice(offset,offset+myNumber);
+    var textureView = new Uint8Array(newTexture);
+    offset=offset+myNumber;
+    var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
+    var url = URL.createObjectURL(imageBlob);
+    //assume that having 100 frame
+    if(iterContaier%2==0){
+        postMessage({
+            type: 'incProgress'
+        });
+    }
+        //comment for some interval tests
+        // var audioData = data.slice(offset,data.byteLength);
+        // //console.log(audioData);
+        // postMessage({
+        //  type: 'decodeAudio',
+        //  audata: audioData,
+        //  });
+     bitmapTextureLoader(url,drcMesh);
+}
+
 // fetch next container to decode
 function getVolumetricContainer(testCanvas){
-	//var url = "sample_videos/container" + numberContainer; 
-	if(iterContaier==numContainer){
-		//PlayButton=true;
-		return;
-	}
-	var url=  path + iterContaier;
-	fetch(url)
-	.then(response => response.arrayBuffer())
-	.then(data =>  {
-		
-		var offset = 40;
-    	var frameNumber = 1;
-   		var i;
-    	for (i = 0; i < frameNumber ; i++) {
-      	var timeStamp = data.slice(offset,offset+8);
-      	byteArray = new BigUint64Array(timeStamp);
-      	myNumber = Number(byteArray[0]);
-      	offset=offset+8;
+    //var url = "sample_videos/container" + numberContainer; 
+    if(iterContaier==numContainer){
+        //PlayButton=true;
+        return;
     }
-		var dracoSize = data.slice(offset,offset+8);
-    	byteArray = new BigUint64Array(dracoSize);
-    	myNumber = Number(byteArray[0]);
-    	offset=offset+8;
-    	
-		var drcMesh = data.slice(offset,offset+myNumber);
+	var url =  path + iterContaier;
+    console.log(url);
+    var audioUrl = "../../sample_videos/demo7/fullAudio.raw";
+
+    fetch(audioUrl).then(response => response.arrayBuffer()).then(data =>{
+        console.log("audio data fetched");
+        console.log(data);
+        postMessage({
+            type: 'decodeAudio',
+            audata: data,
+        }); 
+    })
+
+    fetch(url).then(response => response.arrayBuffer()).then(data =>{
+        var offset = 40;
+        var frameNumber = 1;
+   		var i;
+        decodePointCloudFrame(data, offset);
 		if(!pointCloud){
 			//drcMeshes.push(drcMesh);
 			offset=offset+myNumber;			
@@ -159,7 +212,7 @@ function getVolumetricContainer(testCanvas){
 			offset=offset+myNumber;
 			var imageBlob = new Blob([textureView.buffer], {type: "image/jpg"});
 			var url = URL.createObjectURL(imageBlob);
-					//assume that having 100 frame
+			//assume that having 100 frame
 		if(iterContaier%2==0){
 			postMessage({
 				type: 'incProgress',
@@ -173,38 +226,30 @@ function getVolumetricContainer(testCanvas){
 		// 	audata: audioData,
 		// 	});
 		bitmapTextureLoader(url,drcMesh);	
-		}else{
-			
-			if(iterContaier%2==0){
-				postMessage({
-					type: 'incProgress',
-					});
-			}
-			plyDecoder(drcMesh);
 		}
+
+       // else{
+			
+		//	if(iterContaier%2==0){
+		//		postMessage({
+		//			type: 'incProgress',
+		//			});
+		//	}
+		//	plyDecoder(drcMesh, offset);
+		//}
 
 	})
 }
 
-function plyDecoder(drcMesh){
-
+function plyDecoder(data, drcMesh, offset){
 	dracoLoader.decodeDracoFile(drcMesh,function(bufferGeometry){
-	//bufferGeometry.computeFaceNormals();
-	//bufferGeometry.attributes.color.normalized = false;
-
-	
-	
 	const material = new THREE.PointsMaterial( { vertexColors: true ,size: 0.40} );
-
-	
 	var geometry;
 	geometry = new THREE.Points(bufferGeometry, material);
 	geometry = setGeometryPosition(geometry);
 	meshes.push(geometry);
-   // scene.add(geometry)
 	iterContaier++;
-	getVolumetricContainer();});
-
+	decodePointCloudFrame(data, offset);});
 }
 
 // texture loader
