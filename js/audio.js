@@ -40,9 +40,6 @@
               }
           };
 
-
-      
-
         function buildWaveHeader(opts) {
             const numFrames =      opts.numFrames;
             const numChannels =    opts.numChannels || 2;
